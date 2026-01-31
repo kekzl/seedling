@@ -166,6 +166,188 @@ DOMAIN_TEMPLATES = {
             "Schreibe eine Rust CLI Anwendung mit clap für Argument Parsing",
         ]
     },
+
+    "Networking": {
+        "description": "Netzwerkadministration, Protokolle, Routing, Firewalls",
+        "topics": [
+            "TCP/IP", "DNS", "DHCP", "VPN", "Firewall",
+            "Load Balancer", "BGP", "VLAN", "SDN", "IPv6",
+            "Wireshark", "iptables", "pfSense"
+        ],
+        "seeds": [
+            "Schreibe ein Bash-Skript das alle aktiven Netzwerkverbindungen mit netstat analysiert",
+            "Erstelle eine iptables Konfiguration für einen Webserver mit Rate Limiting",
+            "Schreibe ein Python-Skript das DNS Records abfragt und dokumentiert",
+            "Erstelle eine pfSense Firewall Rule Dokumentation als Vorlage",
+            "Schreibe ein PowerShell-Skript das Windows Firewall Rules exportiert",
+            "Erstelle ein Bash-Skript das Netzwerk-Latenz zu mehreren Hosts überwacht",
+            "Schreibe eine Nginx Konfiguration für TCP Load Balancing",
+            "Erstelle ein Python-Skript das Subnetz-Kalkulationen durchführt",
+            "Schreibe ein Bash-Skript das VLAN Konfigurationen auf Linux erstellt",
+            "Erstelle eine VPN Konfiguration für WireGuard mit mehreren Peers",
+            "Schreibe ein Python-Skript das Wireshark PCAP Dateien analysiert",
+            "Erstelle ein Ansible Playbook für die Konfiguration von Network Interfaces",
+            "Schreibe ein Bash-Skript das IPv6 Adressen für ein Subnetz generiert",
+            "Erstelle eine HAProxy Konfiguration für HTTPS Termination",
+            "Schreibe ein Python-Skript das SNMP Daten von Switches abruft",
+        ]
+    },
+
+    "DataScience": {
+        "description": "Machine Learning, Datenanalyse, Visualisierung, Statistik",
+        "topics": [
+            "Pandas", "NumPy", "Scikit-learn", "TensorFlow", "PyTorch",
+            "Jupyter", "Matplotlib", "Seaborn", "Feature Engineering",
+            "Model Training", "Data Cleaning", "Statistical Analysis"
+        ],
+        "seeds": [
+            "Schreibe ein Python-Skript das einen DataFrame mit Pandas bereinigt und Nullwerte behandelt",
+            "Erstelle eine Jupyter Notebook Zelle für explorative Datenanalyse mit Visualisierungen",
+            "Schreibe eine Python Funktion für Feature Scaling mit Scikit-learn",
+            "Erstelle ein Python-Skript das einen Random Forest Classifier trainiert und evaluiert",
+            "Schreibe eine Python Funktion für Cross-Validation mit mehreren Metriken",
+            "Erstelle ein Matplotlib Dashboard mit mehreren Subplots für Datenvisualisierung",
+            "Schreibe ein Python-Skript das Outlier Detection mit IQR durchführt",
+            "Erstelle eine Python Klasse für ein Custom Transformer in Scikit-learn Pipelines",
+            "Schreibe ein Python-Skript das Time Series Daten mit Rolling Windows analysiert",
+            "Erstelle ein PyTorch Neural Network für binäre Klassifikation",
+            "Schreibe eine Python Funktion für One-Hot Encoding mit Pandas",
+            "Erstelle ein Python-Skript das Hyperparameter Tuning mit GridSearchCV durchführt",
+            "Schreibe ein Seaborn Visualization für Correlation Heatmaps",
+            "Erstelle ein Python-Skript das Text Daten für NLP vorverarbeitet",
+            "Schreibe eine Python Funktion für Train-Test-Split mit Stratification",
+        ]
+    },
+
+    "Frontend": {
+        "description": "Webentwicklung, UI/UX, Frameworks, Accessibility",
+        "topics": [
+            "React", "Vue", "Angular", "TypeScript", "CSS",
+            "Tailwind", "Responsive Design", "Accessibility", "Testing",
+            "State Management", "Web Performance", "Progressive Web Apps"
+        ],
+        "seeds": [
+            "Schreibe eine React Komponente mit useState und useEffect für Daten-Fetching",
+            "Erstelle eine Vue 3 Composition API Komponente mit reaktiven Daten",
+            "Schreibe eine TypeScript React Custom Hook für Form Validation",
+            "Erstelle eine CSS Grid Layout für ein responsives Dashboard",
+            "Schreibe eine React Komponente mit Tailwind CSS für eine Card-Liste",
+            "Erstelle eine Vue Router Konfiguration mit Navigation Guards",
+            "Schreibe einen React Context Provider für globales State Management",
+            "Erstelle eine Angular Service Klasse für HTTP Requests mit Error Handling",
+            "Schreibe eine React Komponente die Accessibility (ARIA) Best Practices folgt",
+            "Erstelle ein Jest Test für eine React Komponente mit Testing Library",
+            "Schreibe eine CSS Animation für Loading Spinner",
+            "Erstelle eine React Lazy Loading Implementation für Code Splitting",
+            "Schreibe eine Progressive Web App Manifest Datei mit Service Worker",
+            "Erstelle eine Storybook Story für eine Button Komponente",
+            "Schreibe eine React Error Boundary Komponente mit Fallback UI",
+        ]
+    },
+
+    "Mobile": {
+        "description": "Mobile App Entwicklung, iOS, Android, Cross-Platform",
+        "topics": [
+            "React Native", "Flutter", "Swift", "Kotlin", "iOS",
+            "Android", "Mobile UI", "Push Notifications", "App Store",
+            "Mobile Security", "Offline Storage", "Gestures"
+        ],
+        "seeds": [
+            "Schreibe eine React Native Komponente mit FlatList für infinite Scrolling",
+            "Erstelle ein Flutter Widget für eine Custom Bottom Navigation Bar",
+            "Schreibe eine Swift Funktion für Core Data Persistence",
+            "Erstelle eine Kotlin Klasse für Room Database Entity und DAO",
+            "Schreibe eine React Native Custom Hook für AsyncStorage Management",
+            "Erstelle ein Flutter BLoC Pattern für State Management",
+            "Schreibe eine Swift Funktion für Push Notification Handling",
+            "Erstelle eine Kotlin Funktion für Retrofit API Calls mit Coroutines",
+            "Schreibe eine React Native Komponente für Gesture Handling mit PanResponder",
+            "Erstelle ein Flutter Widget für responsive Layout mit MediaQuery",
+            "Schreibe eine Swift Funktion für Keychain Secure Storage",
+            "Erstelle eine Kotlin Funktion für biometrische Authentifizierung",
+            "Schreibe eine React Native Navigation Setup mit React Navigation",
+            "Erstelle ein Flutter Widget für Image Caching und Loading States",
+            "Schreibe eine Swift Funktion für Background Task Scheduling",
+        ]
+    },
+
+    "QA": {
+        "description": "Quality Assurance, Testautomatisierung, Performance Testing",
+        "topics": [
+            "Selenium", "Cypress", "Playwright", "Jest", "pytest",
+            "Load Testing", "API Testing", "Test Planning", "BDD",
+            "CI/CD Testing", "Mobile Testing", "Accessibility Testing"
+        ],
+        "seeds": [
+            "Schreibe einen Cypress E2E Test für einen Login Flow",
+            "Erstelle ein Playwright Test Script für Cross-Browser Testing",
+            "Schreibe einen pytest Test mit Fixtures und Parametrization",
+            "Erstelle ein Selenium Page Object Model für eine Webanwendung",
+            "Schreibe ein k6 Load Test Script für API Performance Testing",
+            "Erstelle eine Jest Mock Implementation für externe Services",
+            "Schreibe ein Robot Framework Test Case für Keyword-Driven Testing",
+            "Erstelle ein Postman Collection Script für API Test Automation",
+            "Schreibe einen pytest Test mit Mocking von Database Connections",
+            "Erstelle ein Cypress Custom Command für wiederverwendbare Aktionen",
+            "Schreibe ein JMeter Test Plan für Stress Testing",
+            "Erstelle ein BDD Scenario mit Gherkin Syntax für User Stories",
+            "Schreibe einen Playwright Test für Accessibility Checks mit axe-core",
+            "Erstelle ein pytest Plugin für Custom Test Reporting",
+            "Schreibe ein Selenium Grid Konfiguration für parallele Tests",
+        ]
+    },
+
+    "MLOps": {
+        "description": "Machine Learning Operations, Model Deployment, Feature Stores",
+        "topics": [
+            "MLflow", "Kubeflow", "Feature Store", "Model Registry",
+            "Model Serving", "A/B Testing", "Model Monitoring",
+            "Data Versioning", "DVC", "Experiment Tracking"
+        ],
+        "seeds": [
+            "Schreibe ein MLflow Experiment Tracking Script für Modell-Training",
+            "Erstelle eine Kubeflow Pipeline für automatisiertes ML Training",
+            "Schreibe ein Python-Skript für Feature Store Integration mit Feast",
+            "Erstelle ein Docker Container für Model Serving mit FastAPI",
+            "Schreibe ein DVC Pipeline für Data Versioning und Reproduzierbarkeit",
+            "Erstelle ein Python-Skript für Model Registry mit MLflow",
+            "Schreibe ein Kubernetes Deployment für ML Model Inference",
+            "Erstelle ein Python-Skript für A/B Testing von ML Modellen",
+            "Schreibe ein Monitoring Dashboard für Model Performance Metriken",
+            "Erstelle ein Python-Skript für automatisches Model Retraining",
+            "Schreibe ein Airflow DAG für ML Pipeline Orchestration",
+            "Erstelle ein Python-Skript für Feature Engineering Pipeline",
+            "Schreibe ein Terraform Script für SageMaker Endpoint Deployment",
+            "Erstelle ein Python-Skript für Data Drift Detection",
+            "Schreibe ein GitHub Actions Workflow für ML CI/CD Pipeline",
+        ]
+    },
+
+    "API": {
+        "description": "API Design, REST, GraphQL, gRPC, Dokumentation",
+        "topics": [
+            "REST", "GraphQL", "gRPC", "OpenAPI", "Swagger",
+            "API Gateway", "Rate Limiting", "Authentication",
+            "Versioning", "Webhooks", "API Testing"
+        ],
+        "seeds": [
+            "Schreibe eine FastAPI Route mit Pydantic Validation und Response Models",
+            "Erstelle ein GraphQL Schema mit Queries und Mutations",
+            "Schreibe eine gRPC Service Definition mit Protocol Buffers",
+            "Erstelle eine OpenAPI 3.0 Spezifikation für eine User API",
+            "Schreibe eine Express.js Middleware für API Rate Limiting",
+            "Erstelle ein Python-Skript für JWT Token Validation",
+            "Schreibe eine FastAPI Dependency für Database Session Management",
+            "Erstelle ein GraphQL Resolver mit DataLoader für N+1 Optimization",
+            "Schreibe eine API Versioning Strategie mit URL Prefixes",
+            "Erstelle ein Webhook Handler mit Signature Verification",
+            "Schreibe eine FastAPI Exception Handler für konsistente Error Responses",
+            "Erstelle ein gRPC Client mit Retry Logic und Timeout Handling",
+            "Schreibe eine Swagger UI Konfiguration mit Custom Branding",
+            "Erstelle ein Python-Skript für API Health Check Endpoints",
+            "Schreibe eine GraphQL Subscription für Real-time Updates",
+        ]
+    },
 }
 
 
