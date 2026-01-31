@@ -258,28 +258,6 @@ models:
     vram_recommended: 16384 # ~16GB recommended
     priority: 35  # Solid but older generation
 
-  # =============================================================================
-  # LEGACY MODELS (still supported)
-  # =============================================================================
-
-  # CodeLlama
-  codellama:13b:
-    description: "CodeLlama 13B - Specialized for code (legacy)"
-    context_length: 16384
-    languages: ["en"]
-    vram_required: 24576    # ~24GB minimum
-    vram_recommended: 26624 # ~26GB recommended
-    priority: 70  # Legacy, better options available
-
-  # DeepSeek Coder (v1)
-  deepseek-coder:6.7b:
-    description: "DeepSeek Coder 6.7B - Efficient code model (legacy)"
-    context_length: 16384
-    languages: ["en", "zh"]
-    vram_required: 12288    # ~12GB minimum
-    vram_recommended: 14336 # ~14GB recommended
-    priority: 60  # Legacy but still decent
-
 # Generation presets
 presets:
   # For generating diverse instructions
