@@ -12,10 +12,11 @@ import hashlib
 import json
 import os
 import re
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import yaml
 
@@ -273,7 +274,7 @@ Guidelines:
         name: str,
         data: dict[str, Any],
         is_generated: bool = False,
-    ) -> "Role":
+    ) -> Role:
         """Create a Role from a dictionary."""
         # Parse persona if present
         persona_data = data.get("persona", {})
@@ -376,7 +377,9 @@ class RoleManager:
             self.role_config.max_topics = gen_config.get("max_topics", self.role_config.max_topics)
             self.role_config.min_seeds = gen_config.get("min_seeds", self.role_config.min_seeds)
             self.role_config.max_seeds = gen_config.get("max_seeds", self.role_config.max_seeds)
-            self.role_config.temperature = gen_config.get("temperature", self.role_config.temperature)
+            self.role_config.temperature = gen_config.get(
+                "temperature", self.role_config.temperature
+            )
             self.role_config.max_tokens = gen_config.get("max_tokens", self.role_config.max_tokens)
 
             # Load cache settings
@@ -433,10 +436,7 @@ class RoleManager:
         Returns:
             List of roles in the category
         """
-        return [
-            role for role in self._predefined_roles.values()
-            if role.category == category
-        ]
+        return [role for role in self._predefined_roles.values() if role.category == category]
 
     def get_role_choices(self) -> list[tuple[str, str]]:
         """Get role choices for UI dropdown.
@@ -469,10 +469,7 @@ class RoleManager:
         Returns:
             Dictionary compatible with DOMAIN_TEMPLATES
         """
-        return {
-            role.display_name: role.to_dict()
-            for role in self._predefined_roles.values()
-        }
+        return {role.display_name: role.to_dict() for role in self._predefined_roles.values()}
 
     # =========================================================================
     # Dynamic Role Generation
@@ -601,9 +598,7 @@ class RoleManager:
             if on_progress:
                 on_progress("Generating role description...")
 
-            description = await self._generate_description(
-                client, base_url, model, role_name
-            )
+            description = await self._generate_description(client, base_url, model, role_name)
 
             # Step 2: Generate topics
             if on_progress:
@@ -638,7 +633,9 @@ class RoleManager:
         self._save_to_cache(role)
 
         if on_progress:
-            on_progress(f"Successfully generated role '{role_name}' with {len(topics)} topics and {len(seeds)} seeds")
+            on_progress(
+                f"Successfully generated role '{role_name}' with {len(topics)} topics and {len(seeds)} seeds"
+            )
 
         return role
 

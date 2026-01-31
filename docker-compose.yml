@@ -44,64 +44,6 @@ services:
     restart: "no"
 
   # =============================================================================
-  # Argilla - Data Curation Platform
-  # =============================================================================
-  argilla:
-    image: argilla/argilla-server:latest
-    container_name: seedling-argilla
-    ports:
-      - "6900:6900"
-    environment:
-      - ARGILLA_HOME_PATH=/var/lib/argilla
-      - ARGILLA_ELASTICSEARCH=http://elasticsearch:9200
-      - ARGILLA_REDIS_URL=redis://redis:6379/0
-      - ARGILLA_AUTH_SECRET_KEY=seedling-secret-key-change-me
-      # Default admin user
-      - USERNAME=argilla
-      - PASSWORD=12345678
-      - API_KEY=argilla.apikey
-    volumes:
-      - argilla_data:/var/lib/argilla
-    depends_on:
-      elasticsearch:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    restart: unless-stopped
-
-  # =============================================================================
-  # Redis - Required by Argilla
-  # =============================================================================
-  redis:
-    image: redis:7-alpine
-    container_name: seedling-redis
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-    restart: unless-stopped
-
-  # =============================================================================
-  # Elasticsearch - Backend for Argilla
-  # =============================================================================
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
-    container_name: seedling-elasticsearch
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
-    volumes:
-      - elasticsearch_data:/usr/share/elasticsearch/data
-    healthcheck:
-      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -q '\"status\":\"green\"\\|\"status\":\"yellow\"'"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    restart: unless-stopped
-
-  # =============================================================================
   # Seedling Web UI - Main Application
   # =============================================================================
   seedling:
@@ -113,13 +55,12 @@ services:
       - "7860:7860"
     environment:
       - OLLAMA_BASE_URL=http://ollama:11434
-      - ARGILLA_API_URL=http://argilla:6900
-      - ARGILLA_API_KEY=argilla.apikey
       - HF_TOKEN=${HF_TOKEN:-}
     volumes:
       - ./data:/app/data
       - ./config:/app/config
       - ./outputs:/app/outputs
+      - ./assets:/app/assets
     deploy:
       resources:
         reservations:
@@ -130,11 +71,7 @@ services:
     depends_on:
       ollama:
         condition: service_healthy
-      argilla:
-        condition: service_started
     restart: unless-stopped
 
 volumes:
   ollama_data:
-  argilla_data:
-  elasticsearch_data:

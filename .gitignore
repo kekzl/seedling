@@ -11,16 +11,17 @@ ENV/
 *.egg-info/
 dist/
 build/
+*.egg
 
 # Environment
 .env
 .env.local
+.env.*.local
 
 # Data & Outputs
 data/
 outputs/
 *.jsonl
-*.json
 !config/*.yaml
 !config/*.json
 
@@ -30,6 +31,8 @@ outputs/
 *.swp
 *.swo
 *~
+.project
+.settings/
 
 # Docker
 .docker/
@@ -41,6 +44,7 @@ logs/
 # OS
 .DS_Store
 Thumbs.db
+Desktop.ini
 
 # Checkpoints
 checkpoints/
@@ -49,3 +53,19 @@ checkpoints/
 # Hugging Face
 .cache/
 models/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+
+# Linting
+.ruff_cache/
+.mypy_cache/
+
+# Jupyter
+.ipynb_checkpoints/

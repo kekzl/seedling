@@ -9,11 +9,11 @@ from __future__ import annotations
 
 import os
 import platform
-import subprocess
 import re
+import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
+
 import yaml
 
 
@@ -30,12 +30,13 @@ class GPUInfo:
         driver_version: GPU driver version
         index: GPU index (for multi-GPU systems)
     """
+
     name: str
     vram_total_mb: int
     vram_free_mb: int
     vram_used_mb: int
-    cuda_version: Optional[str] = None
-    driver_version: Optional[str] = None
+    cuda_version: str | None = None
+    driver_version: str | None = None
     index: int = 0
 
 
@@ -53,10 +54,11 @@ class SystemInfo:
         ram_total_mb: Total system RAM in megabytes
         ram_free_mb: Free system RAM in megabytes
     """
+
     os_type: str
     os_version: str
     is_wsl: bool = False
-    wsl_version: Optional[int] = None
+    wsl_version: int | None = None
     gpus: list[GPUInfo] = field(default_factory=list)
     cpu_name: str = "Unknown"
     ram_total_mb: int = 0
@@ -165,7 +167,7 @@ class SystemInfo:
         return "\n".join(lines)
 
 
-def detect_wsl() -> tuple[bool, Optional[int]]:
+def detect_wsl() -> tuple[bool, int | None]:
     """Detect if running under Windows Subsystem for Linux.
 
     Returns:
@@ -177,7 +179,7 @@ def detect_wsl() -> tuple[bool, Optional[int]]:
 
     # Method 1: Check /proc/version for Microsoft
     try:
-        with open("/proc/version", "r") as f:
+        with open("/proc/version") as f:
             version_info = f.read().lower()
             if "microsoft" in version_info or "wsl" in version_info:
                 is_wsl = True
@@ -205,10 +207,7 @@ def detect_wsl() -> tuple[bool, Optional[int]]:
             kernel_release = platform.release()
             if "microsoft" in kernel_release.lower():
                 # Contains "microsoft-standard" for WSL2
-                if "standard" in kernel_release.lower():
-                    wsl_version = 2
-                else:
-                    wsl_version = 1
+                wsl_version = 2 if "standard" in kernel_release.lower() else 1
         except Exception:
             pass
 
@@ -229,11 +228,11 @@ def detect_nvidia_gpus() -> list[GPUInfo]:
             [
                 "nvidia-smi",
                 "--query-gpu=index,name,memory.total,memory.free,memory.used,driver_version",
-                "--format=csv,noheader,nounits"
+                "--format=csv,noheader,nounits",
             ],
             capture_output=True,
             text=True,
-            timeout=10
+            timeout=10,
         )
 
         if result.returncode != 0:
@@ -253,7 +252,7 @@ def detect_nvidia_gpus() -> list[GPUInfo]:
                         vram_total_mb=int(float(parts[2])),
                         vram_free_mb=int(float(parts[3])),
                         vram_used_mb=int(float(parts[4])),
-                        driver_version=parts[5]
+                        driver_version=parts[5],
                     )
                     gpus.append(gpu)
                 except (ValueError, IndexError):
@@ -264,7 +263,7 @@ def detect_nvidia_gpus() -> list[GPUInfo]:
             ["nvidia-smi", "--query-gpu=cuda_version", "--format=csv,noheader"],
             capture_output=True,
             text=True,
-            timeout=10
+            timeout=10,
         )
 
         if cuda_result.returncode == 0:
@@ -289,7 +288,7 @@ def detect_cpu() -> str:
 
     # Try /proc/cpuinfo on Linux
     try:
-        with open("/proc/cpuinfo", "r") as f:
+        with open("/proc/cpuinfo") as f:
             for line in f:
                 if line.startswith("model name"):
                     cpu_name = line.split(":")[1].strip()
@@ -315,7 +314,7 @@ def detect_ram() -> tuple[int, int]:
 
     # Try /proc/meminfo on Linux
     try:
-        with open("/proc/meminfo", "r") as f:
+        with open("/proc/meminfo") as f:
             for line in f:
                 if line.startswith("MemTotal:"):
                     # Value is in kB
@@ -360,7 +359,7 @@ def detect_system() -> SystemInfo:
         gpus=gpus,
         cpu_name=cpu_name,
         ram_total_mb=ram_total,
-        ram_free_mb=ram_free
+        ram_free_mb=ram_free,
     )
 
 
@@ -375,6 +374,7 @@ class ModelRequirements:
         description: Human-readable description
         priority: Quality ranking for instruction generation (lower = better)
     """
+
     name: str
     vram_required_mb: int
     vram_recommended_mb: int
@@ -382,7 +382,7 @@ class ModelRequirements:
     priority: int = 50  # Default mid-range priority
 
 
-def load_model_requirements(config_path: Optional[Path] = None) -> dict[str, ModelRequirements]:
+def load_model_requirements(config_path: Path | None = None) -> dict[str, ModelRequirements]:
     """Load model VRAM requirements from configuration.
 
     Args:
@@ -414,7 +414,7 @@ def load_model_requirements(config_path: Optional[Path] = None) -> dict[str, Mod
                 vram_required_mb=vram_required,
                 vram_recommended_mb=vram_recommended,
                 description=model_info.get("description", ""),
-                priority=model_info.get("priority", 50)
+                priority=model_info.get("priority", 50),
             )
 
     except (FileNotFoundError, yaml.YAMLError):
@@ -438,7 +438,7 @@ def parse_vram_string(vram_str: str | int | float) -> int:
     Returns:
         VRAM in megabytes
     """
-    if isinstance(vram_str, (int, float)):
+    if isinstance(vram_str, int | float):
         # If it's a small number, assume GB
         if vram_str < 1000:
             return int(vram_str * 1024)
@@ -471,7 +471,7 @@ def parse_vram_string(vram_str: str | int | float) -> int:
 def get_recommended_models(
     system_info: SystemInfo,
     model_requirements: dict[str, ModelRequirements],
-    safety_margin_mb: int = 1024
+    safety_margin_mb: int = 1024,
 ) -> tuple[list[str], list[str], list[str]]:
     """Get model recommendations based on available VRAM.
 
@@ -511,8 +511,8 @@ def get_recommended_models(
 def get_best_default_model(
     system_info: SystemInfo,
     model_requirements: dict[str, ModelRequirements],
-    preferred_models: Optional[list[str]] = None
-) -> Optional[str]:
+    preferred_models: list[str] | None = None,
+) -> str | None:
     """Get the best default model for the detected hardware.
 
     Args:
@@ -540,12 +540,12 @@ def get_best_default_model(
     # Preference order for coding tasks
     default_preference = [
         "qwen2.5-coder:14b",  # Best for code if VRAM allows
-        "qwen2.5:14b",         # Good general purpose
-        "qwen2.5-coder:7b",    # Smaller but still good for code
-        "llama3.1:8b",         # Good English performance
-        "qwen2.5:7b",          # General purpose
-        "deepseek-coder:6.7b", # Efficient code model
-        "codellama:13b",       # Specialized for code
+        "qwen2.5:14b",  # Good general purpose
+        "qwen2.5-coder:7b",  # Smaller but still good for code
+        "llama3.1:8b",  # Good English performance
+        "qwen2.5:7b",  # General purpose
+        "deepseek-coder:6.7b",  # Efficient code model
+        "codellama:13b",  # Specialized for code
     ]
 
     for model in default_preference:
@@ -561,7 +561,7 @@ def get_best_default_model(
 
 
 # Cached system info to avoid repeated detection
-_cached_system_info: Optional[SystemInfo] = None
+_cached_system_info: SystemInfo | None = None
 
 
 def get_system_info(refresh: bool = False) -> SystemInfo:

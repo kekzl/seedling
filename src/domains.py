@@ -18,24 +18,27 @@ from __future__ import annotations
 from typing import Any
 
 from .roles import (
-    get_role_manager,
-    get_predefined_roles,
-    get_role_choices,
-    get_role_seeds,
-    get_role_as_domain_template,
     get_all_roles_as_domain_templates,
-    generate_role_from_name,
-    Role,
-    RoleManager,
+    get_role_manager,
+    get_role_seeds,
 )
 
 DOMAIN_TEMPLATES = {
     "DevOps": {
         "description": "Infrastructure as Code, CI/CD, Containerization, Orchestration",
         "topics": [
-            "Terraform", "Ansible", "Kubernetes", "Docker", "Helm",
-            "GitLab CI", "GitHub Actions", "Jenkins", "ArgoCD",
-            "Prometheus", "Grafana", "ELK Stack"
+            "Terraform",
+            "Ansible",
+            "Kubernetes",
+            "Docker",
+            "Helm",
+            "GitLab CI",
+            "GitHub Actions",
+            "Jenkins",
+            "ArgoCD",
+            "Prometheus",
+            "Grafana",
+            "ELK Stack",
         ],
         "seeds": [
             "Write a Terraform configuration for an AWS S3 bucket with versioning and encryption",
@@ -53,15 +56,23 @@ DOMAIN_TEMPLATES = {
             "Write a Terraform module for a VPC with public and private subnets",
             "Create a Kubernetes CronJob that creates daily database backups",
             "Write a Jenkins pipeline that supports multi-branch builds",
-        ]
+        ],
     },
-
     "SysAdmin": {
         "description": "Windows/Linux Administration, Scripting, Identity Management",
         "topics": [
-            "PowerShell", "Bash", "Active Directory", "Entra ID",
-            "Intune", "SCCM", "Group Policy", "Linux Administration",
-            "Systemd", "Networking", "Storage", "Backup"
+            "PowerShell",
+            "Bash",
+            "Active Directory",
+            "Entra ID",
+            "Intune",
+            "SCCM",
+            "Group Policy",
+            "Linux Administration",
+            "Systemd",
+            "Networking",
+            "Storage",
+            "Backup",
         ],
         "seeds": [
             "Write a PowerShell script that exports all disabled users from Active Directory",
@@ -79,15 +90,24 @@ DOMAIN_TEMPLATES = {
             "Write a Bash script that analyzes Nginx access logs and shows top IPs",
             "Create a PowerShell script that uses Microsoft Graph API to create users",
             "Write a Bash script that rotates SSH keys on multiple servers",
-        ]
+        ],
     },
-
     "Cloud": {
         "description": "AWS, Azure, GCP Cloud Services and Architectures",
         "topics": [
-            "AWS", "Azure", "GCP", "IAM", "Networking",
-            "Serverless", "Lambda", "Functions", "Storage",
-            "Database", "VPC", "Load Balancing", "CDN"
+            "AWS",
+            "Azure",
+            "GCP",
+            "IAM",
+            "Networking",
+            "Serverless",
+            "Lambda",
+            "Functions",
+            "Storage",
+            "Database",
+            "VPC",
+            "Load Balancing",
+            "CDN",
         ],
         "seeds": [
             "Write an AWS Lambda function that processes S3 events and stores in DynamoDB",
@@ -105,15 +125,21 @@ DOMAIN_TEMPLATES = {
             "Write an AWS EventBridge rule for scheduled Lambda invocations",
             "Create an Azure Key Vault access policy",
             "Write a Terraform script for AWS RDS with Multi-AZ",
-        ]
+        ],
     },
-
     "Security": {
         "description": "Information Security, Compliance, Hardening",
         "topics": [
-            "ISMS", "ISO 27001", "IT-Grundschutz", "GDPR",
-            "Hardening", "Penetration Testing", "Incident Response",
-            "Vulnerability Management", "SIEM", "Zero Trust"
+            "ISMS",
+            "ISO 27001",
+            "IT-Grundschutz",
+            "GDPR",
+            "Hardening",
+            "Penetration Testing",
+            "Incident Response",
+            "Vulnerability Management",
+            "SIEM",
+            "Zero Trust",
         ],
         "seeds": [
             "Write a security policy for password complexity according to ISO 27001",
@@ -131,15 +157,22 @@ DOMAIN_TEMPLATES = {
             "Write a Bash script that documents firewall rules",
             "Create a security awareness training agenda",
             "Write a Python script that uses the HIBP API for email leak checks",
-        ]
+        ],
     },
-
     "Database": {
         "description": "SQL, NoSQL, Data Engineering, ETL",
         "topics": [
-            "PostgreSQL", "MySQL", "MongoDB", "Redis",
-            "Elasticsearch", "SQL", "ETL", "Data Modeling",
-            "Backup", "Replication", "Performance Tuning"
+            "PostgreSQL",
+            "MySQL",
+            "MongoDB",
+            "Redis",
+            "Elasticsearch",
+            "SQL",
+            "ETL",
+            "Data Modeling",
+            "Backup",
+            "Replication",
+            "Performance Tuning",
         ],
         "seeds": [
             "Write a PostgreSQL query that finds the top 10 slowest queries",
@@ -157,15 +190,22 @@ DOMAIN_TEMPLATES = {
             "Write a SQL query that finds dead tuples in PostgreSQL",
             "Create a MySQL Performance Schema query for lock analysis",
             "Write a Python script that pools database connections",
-        ]
+        ],
     },
-
     "Code": {
         "description": "General Programming in Various Languages",
         "topics": [
-            "Python", "TypeScript", "JavaScript", "Rust", "Go",
-            "REST APIs", "Testing", "Design Patterns", "Refactoring",
-            "Documentation", "Code Review"
+            "Python",
+            "TypeScript",
+            "JavaScript",
+            "Rust",
+            "Go",
+            "REST APIs",
+            "Testing",
+            "Design Patterns",
+            "Refactoring",
+            "Documentation",
+            "Code Review",
         ],
         "seeds": [
             "Write a Python class for a repository pattern with SQLAlchemy",
@@ -183,15 +223,24 @@ DOMAIN_TEMPLATES = {
             "Write a Python script that generates OpenAPI specs",
             "Create a TypeScript enum with associated utility functions",
             "Write a Rust CLI application with clap for argument parsing",
-        ]
+        ],
     },
-
     "Networking": {
         "description": "Network Administration, Protocols, Routing, Firewalls",
         "topics": [
-            "TCP/IP", "DNS", "DHCP", "VPN", "Firewall",
-            "Load Balancer", "BGP", "VLAN", "SDN", "IPv6",
-            "Wireshark", "iptables", "pfSense"
+            "TCP/IP",
+            "DNS",
+            "DHCP",
+            "VPN",
+            "Firewall",
+            "Load Balancer",
+            "BGP",
+            "VLAN",
+            "SDN",
+            "IPv6",
+            "Wireshark",
+            "iptables",
+            "pfSense",
         ],
         "seeds": [
             "Write a Bash script that analyzes all active network connections with netstat",
@@ -209,15 +258,23 @@ DOMAIN_TEMPLATES = {
             "Write a Bash script that generates IPv6 addresses for a subnet",
             "Create an HAProxy configuration for HTTPS termination",
             "Write a Python script that retrieves SNMP data from switches",
-        ]
+        ],
     },
-
     "DataScience": {
         "description": "Machine Learning, Data Analysis, Visualization, Statistics",
         "topics": [
-            "Pandas", "NumPy", "Scikit-learn", "TensorFlow", "PyTorch",
-            "Jupyter", "Matplotlib", "Seaborn", "Feature Engineering",
-            "Model Training", "Data Cleaning", "Statistical Analysis"
+            "Pandas",
+            "NumPy",
+            "Scikit-learn",
+            "TensorFlow",
+            "PyTorch",
+            "Jupyter",
+            "Matplotlib",
+            "Seaborn",
+            "Feature Engineering",
+            "Model Training",
+            "Data Cleaning",
+            "Statistical Analysis",
         ],
         "seeds": [
             "Write a Python script that cleans a DataFrame with Pandas and handles null values",
@@ -235,15 +292,23 @@ DOMAIN_TEMPLATES = {
             "Write a Seaborn visualization for correlation heatmaps",
             "Create a Python script that preprocesses text data for NLP",
             "Write a Python function for train-test split with stratification",
-        ]
+        ],
     },
-
     "Frontend": {
         "description": "Web Development, UI/UX, Frameworks, Accessibility",
         "topics": [
-            "React", "Vue", "Angular", "TypeScript", "CSS",
-            "Tailwind", "Responsive Design", "Accessibility", "Testing",
-            "State Management", "Web Performance", "Progressive Web Apps"
+            "React",
+            "Vue",
+            "Angular",
+            "TypeScript",
+            "CSS",
+            "Tailwind",
+            "Responsive Design",
+            "Accessibility",
+            "Testing",
+            "State Management",
+            "Web Performance",
+            "Progressive Web Apps",
         ],
         "seeds": [
             "Write a React component with useState and useEffect for data fetching",
@@ -261,15 +326,23 @@ DOMAIN_TEMPLATES = {
             "Write a Progressive Web App manifest file with service worker",
             "Create a Storybook story for a button component",
             "Write a React error boundary component with fallback UI",
-        ]
+        ],
     },
-
     "Mobile": {
         "description": "Mobile App Development, iOS, Android, Cross-Platform",
         "topics": [
-            "React Native", "Flutter", "Swift", "Kotlin", "iOS",
-            "Android", "Mobile UI", "Push Notifications", "App Store",
-            "Mobile Security", "Offline Storage", "Gestures"
+            "React Native",
+            "Flutter",
+            "Swift",
+            "Kotlin",
+            "iOS",
+            "Android",
+            "Mobile UI",
+            "Push Notifications",
+            "App Store",
+            "Mobile Security",
+            "Offline Storage",
+            "Gestures",
         ],
         "seeds": [
             "Write a React Native component with FlatList for infinite scrolling",
@@ -287,15 +360,23 @@ DOMAIN_TEMPLATES = {
             "Write a React Native navigation setup with React Navigation",
             "Create a Flutter widget for image caching and loading states",
             "Write a Swift function for background task scheduling",
-        ]
+        ],
     },
-
     "QA": {
         "description": "Quality Assurance, Test Automation, Performance Testing",
         "topics": [
-            "Selenium", "Cypress", "Playwright", "Jest", "pytest",
-            "Load Testing", "API Testing", "Test Planning", "BDD",
-            "CI/CD Testing", "Mobile Testing", "Accessibility Testing"
+            "Selenium",
+            "Cypress",
+            "Playwright",
+            "Jest",
+            "pytest",
+            "Load Testing",
+            "API Testing",
+            "Test Planning",
+            "BDD",
+            "CI/CD Testing",
+            "Mobile Testing",
+            "Accessibility Testing",
         ],
         "seeds": [
             "Write a Cypress E2E test for a login flow",
@@ -313,15 +394,21 @@ DOMAIN_TEMPLATES = {
             "Write a Playwright test for accessibility checks with axe-core",
             "Create a pytest plugin for custom test reporting",
             "Write a Selenium Grid configuration for parallel tests",
-        ]
+        ],
     },
-
     "MLOps": {
         "description": "Machine Learning Operations, Model Deployment, Feature Stores",
         "topics": [
-            "MLflow", "Kubeflow", "Feature Store", "Model Registry",
-            "Model Serving", "A/B Testing", "Model Monitoring",
-            "Data Versioning", "DVC", "Experiment Tracking"
+            "MLflow",
+            "Kubeflow",
+            "Feature Store",
+            "Model Registry",
+            "Model Serving",
+            "A/B Testing",
+            "Model Monitoring",
+            "Data Versioning",
+            "DVC",
+            "Experiment Tracking",
         ],
         "seeds": [
             "Write an MLflow experiment tracking script for model training",
@@ -339,15 +426,22 @@ DOMAIN_TEMPLATES = {
             "Write a Terraform script for SageMaker endpoint deployment",
             "Create a Python script for data drift detection",
             "Write a GitHub Actions workflow for ML CI/CD pipeline",
-        ]
+        ],
     },
-
     "API": {
         "description": "API Design, REST, GraphQL, gRPC, Documentation",
         "topics": [
-            "REST", "GraphQL", "gRPC", "OpenAPI", "Swagger",
-            "API Gateway", "Rate Limiting", "Authentication",
-            "Versioning", "Webhooks", "API Testing"
+            "REST",
+            "GraphQL",
+            "gRPC",
+            "OpenAPI",
+            "Swagger",
+            "API Gateway",
+            "Rate Limiting",
+            "Authentication",
+            "Versioning",
+            "Webhooks",
+            "API Testing",
         ],
         "seeds": [
             "Write a FastAPI route with Pydantic validation and response models",
@@ -365,16 +459,26 @@ DOMAIN_TEMPLATES = {
             "Write a Swagger UI configuration with custom branding",
             "Create a Python script for API health check endpoints",
             "Write a GraphQL subscription for real-time updates",
-        ]
+        ],
     },
-
     "Docker": {
         "description": "Docker Containers, Images, Dockerfile, Registry, Networking",
         "topics": [
-            "Dockerfile", "Docker Build", "Docker Run", "Docker Images",
-            "Docker Volumes", "Docker Networks", "Docker Registry", "Multi-Stage Builds",
-            "Container Debugging", "Docker Logs", "Docker Exec", "Docker Prune",
-            "Health Checks", "Environment Variables", "Docker Secrets"
+            "Dockerfile",
+            "Docker Build",
+            "Docker Run",
+            "Docker Images",
+            "Docker Volumes",
+            "Docker Networks",
+            "Docker Registry",
+            "Multi-Stage Builds",
+            "Container Debugging",
+            "Docker Logs",
+            "Docker Exec",
+            "Docker Prune",
+            "Health Checks",
+            "Environment Variables",
+            "Docker Secrets",
         ],
         "seeds": [
             "Write a Dockerfile for a Python Flask application with multi-stage build",
@@ -392,16 +496,26 @@ DOMAIN_TEMPLATES = {
             "Write a Dockerfile with ENTRYPOINT and CMD combination for flexible starts",
             "Create a Docker command that monitors container resource usage",
             "Write a Dockerfile for a Rust application with cargo build --release",
-        ]
+        ],
     },
-
     "DockerCompose": {
         "description": "Docker Compose Multi-Container Orchestration, Services, Networks, Volumes",
         "topics": [
-            "docker-compose.yml", "Services", "Networks", "Volumes",
-            "Environment Files", "Depends On", "Health Checks", "Profiles",
-            "Build Context", "Replicas", "Resource Limits", "Secrets",
-            "Override Files", "Docker Compose Watch", "Service Discovery"
+            "docker-compose.yml",
+            "Services",
+            "Networks",
+            "Volumes",
+            "Environment Files",
+            "Depends On",
+            "Health Checks",
+            "Profiles",
+            "Build Context",
+            "Replicas",
+            "Resource Limits",
+            "Secrets",
+            "Override Files",
+            "Docker Compose Watch",
+            "Service Discovery",
         ],
         "seeds": [
             "Write a docker-compose.yml for a LAMP stack with MySQL and phpMyAdmin",
@@ -419,16 +533,26 @@ DOMAIN_TEMPLATES = {
             "Write a docker-compose.yml for PostgreSQL with automatic backup service",
             "Create a Docker Compose configuration with Traefik reverse proxy and SSL",
             "Write a docker-compose.yml with Docker Compose Watch for hot reload",
-        ]
+        ],
     },
-
     "Bash": {
         "description": "Shell Scripting, Command Line Tools, Text Processing, Automation",
         "topics": [
-            "Bash Scripting", "Shell Variables", "Control Flow", "Functions",
-            "Pipes", "Redirection", "Process Management", "Text Processing",
-            "File Operations", "Error Handling", "Subshells", "Arrays",
-            "Parameter Expansion", "Here Documents", "Signal Handling"
+            "Bash Scripting",
+            "Shell Variables",
+            "Control Flow",
+            "Functions",
+            "Pipes",
+            "Redirection",
+            "Process Management",
+            "Text Processing",
+            "File Operations",
+            "Error Handling",
+            "Subshells",
+            "Arrays",
+            "Parameter Expansion",
+            "Here Documents",
+            "Signal Handling",
         ],
         "seeds": [
             "Write a Bash script that lists files recursively sorted by size",
@@ -446,16 +570,26 @@ DOMAIN_TEMPLATES = {
             "Write a Bash script that reads stdin and processes line by line",
             "Create a Bash script with lockfile for single-instance execution",
             "Write a Bash script that loads environment variables from .env file",
-        ]
+        ],
     },
-
     "SSH": {
         "description": "SSH Connections, Key Management, Tunneling, Remote Execution",
         "topics": [
-            "SSH Keys", "SSH Config", "SSH Tunnel", "Port Forwarding",
-            "Jump Hosts", "SSH Agent", "SCP", "SFTP", "Remote Commands",
-            "Known Hosts", "Host Key Verification", "ProxyJump", "ControlMaster",
-            "SSH Escape Sequences", "Key Rotation"
+            "SSH Keys",
+            "SSH Config",
+            "SSH Tunnel",
+            "Port Forwarding",
+            "Jump Hosts",
+            "SSH Agent",
+            "SCP",
+            "SFTP",
+            "Remote Commands",
+            "Known Hosts",
+            "Host Key Verification",
+            "ProxyJump",
+            "ControlMaster",
+            "SSH Escape Sequences",
+            "Key Rotation",
         ],
         "seeds": [
             "Write an SSH command for local port forwarding to a database",
@@ -473,16 +607,26 @@ DOMAIN_TEMPLATES = {
             "Write an SFTP batch command for automated file transfers",
             "Create an SSH command with pseudo-terminal for interactive sessions",
             "Write a Bash script that monitors SSH connections with timeout",
-        ]
+        ],
     },
-
     "Curl": {
         "description": "HTTP Requests, API Testing, Downloads, Authentication",
         "topics": [
-            "GET Requests", "POST Requests", "Headers", "Authentication",
-            "JSON Data", "File Upload", "Cookies", "SSL/TLS", "Timeouts",
-            "Retry Logic", "Output Formatting", "Follow Redirects",
-            "Rate Limiting", "Proxy", "Debug Mode"
+            "GET Requests",
+            "POST Requests",
+            "Headers",
+            "Authentication",
+            "JSON Data",
+            "File Upload",
+            "Cookies",
+            "SSL/TLS",
+            "Timeouts",
+            "Retry Logic",
+            "Output Formatting",
+            "Follow Redirects",
+            "Rate Limiting",
+            "Proxy",
+            "Debug Mode",
         ],
         "seeds": [
             "Write a curl command for POST request with JSON body and headers",
@@ -500,16 +644,26 @@ DOMAIN_TEMPLATES = {
             "Write a curl command for PUT request with file content",
             "Create a curl command with proxy and proxy authentication",
             "Write a curl command for parallel requests with xargs",
-        ]
+        ],
     },
-
     "Ripgrep": {
         "description": "Fast Text Search, Regex Patterns, Code Search, Filtering",
         "topics": [
-            "Pattern Matching", "Regex", "File Type Filtering", "Context Lines",
-            "Ignore Patterns", "Case Sensitivity", "Word Boundaries", "Multiline",
-            "Replace Mode", "JSON Output", "Glob Patterns", "Hidden Files",
-            "Binary Files", "Count Mode", "Files With Matches"
+            "Pattern Matching",
+            "Regex",
+            "File Type Filtering",
+            "Context Lines",
+            "Ignore Patterns",
+            "Case Sensitivity",
+            "Word Boundaries",
+            "Multiline",
+            "Replace Mode",
+            "JSON Output",
+            "Glob Patterns",
+            "Hidden Files",
+            "Binary Files",
+            "Count Mode",
+            "Files With Matches",
         ],
         "seeds": [
             "Write an rg command that searches for a pattern in specific file types",
@@ -527,16 +681,26 @@ DOMAIN_TEMPLATES = {
             "Write an rg command for searching TODO and FIXME comments",
             "Create an rg command with type-add for custom file types",
             "Write an rg command that captures and displays regex groups",
-        ]
+        ],
     },
-
     "Cat": {
         "description": "File Display, Concatenation, Text Transformation, Pipe Operations",
         "topics": [
-            "File Display", "Concatenation", "Line Numbers", "Non-Printing Characters",
-            "Heredoc", "Pipe Operations", "File Creation", "Tab Display",
-            "End of Line Markers", "Squeeze Blank Lines", "Binary View",
-            "Multiple Files", "Standard Input", "Reverse Output", "Pagination"
+            "File Display",
+            "Concatenation",
+            "Line Numbers",
+            "Non-Printing Characters",
+            "Heredoc",
+            "Pipe Operations",
+            "File Creation",
+            "Tab Display",
+            "End of Line Markers",
+            "Squeeze Blank Lines",
+            "Binary View",
+            "Multiple Files",
+            "Standard Input",
+            "Reverse Output",
+            "Pagination",
         ],
         "seeds": [
             "Write a cat command that displays multiple files with line numbers",
@@ -554,16 +718,26 @@ DOMAIN_TEMPLATES = {
             "Write a cat command with sort and uniq for deduplicated output",
             "Create a cat command combined with sed for text transformation",
             "Write a cat command with nl for continuous numbering across files",
-        ]
+        ],
     },
-
     "Files": {
         "description": "File Formats, Metadata, Encoding, Conversion, Analysis",
         "topics": [
-            "File Formats", "MIME Types", "Metadata", "Encoding",
-            "File Headers", "Magic Bytes", "Checksums", "Compression",
-            "Archive Formats", "File Parsing", "Binary Analysis", "Text Encoding",
-            "File Validation", "Format Conversion", "File Structure"
+            "File Formats",
+            "MIME Types",
+            "Metadata",
+            "Encoding",
+            "File Headers",
+            "Magic Bytes",
+            "Checksums",
+            "Compression",
+            "Archive Formats",
+            "File Parsing",
+            "Binary Analysis",
+            "Text Encoding",
+            "File Validation",
+            "Format Conversion",
+            "File Structure",
         ],
         "seeds": [
             "Write a Python script that analyzes MIME type and magic bytes of a file",
@@ -581,16 +755,26 @@ DOMAIN_TEMPLATES = {
             "Write a Python script that checks file integrity and detects corruption",
             "Create a Bash script that finds file duplicates based on content hash",
             "Write a Python script that extracts embedded files from containers",
-        ]
+        ],
     },
-
     "Images": {
         "description": "Image Processing, Analysis, OCR, Metadata, Format Conversion",
         "topics": [
-            "Image Formats", "EXIF Metadata", "OCR", "Image Analysis",
-            "Color Spaces", "Resolution", "Compression", "Thumbnails",
-            "Image Recognition", "Face Detection", "Object Detection", "Image Comparison",
-            "Watermarks", "Steganography", "Image Optimization"
+            "Image Formats",
+            "EXIF Metadata",
+            "OCR",
+            "Image Analysis",
+            "Color Spaces",
+            "Resolution",
+            "Compression",
+            "Thumbnails",
+            "Image Recognition",
+            "Face Detection",
+            "Object Detection",
+            "Image Comparison",
+            "Watermarks",
+            "Steganography",
+            "Image Optimization",
         ],
         "seeds": [
             "Write a Python script that performs OCR with Tesseract and extracts text from images",
@@ -608,16 +792,26 @@ DOMAIN_TEMPLATES = {
             "Write a Python script that analyzes text overlays and watermarks in images",
             "Create a Python script that generates image-to-text descriptions with Vision API",
             "Write a Python script that decodes QR codes and barcodes in images",
-        ]
+        ],
     },
-
     "Audio": {
         "description": "Audio Processing, Transcription, Analysis, Format Conversion",
         "topics": [
-            "Audio Formats", "Transcription", "Speech Recognition", "Audio Metadata",
-            "Waveform Analysis", "Spectrograms", "Noise Reduction", "Audio Compression",
-            "Voice Detection", "Music Analysis", "Audio Segmentation", "Pitch Detection",
-            "Sample Rate", "Bit Depth", "Audio Normalization"
+            "Audio Formats",
+            "Transcription",
+            "Speech Recognition",
+            "Audio Metadata",
+            "Waveform Analysis",
+            "Spectrograms",
+            "Noise Reduction",
+            "Audio Compression",
+            "Voice Detection",
+            "Music Analysis",
+            "Audio Segmentation",
+            "Pitch Detection",
+            "Sample Rate",
+            "Bit Depth",
+            "Audio Normalization",
         ],
         "seeds": [
             "Write a Python script that performs audio transcription with Whisper",
@@ -635,16 +829,26 @@ DOMAIN_TEMPLATES = {
             "Write a Bash script that analyzes audio quality and recommends bitrate",
             "Create a Python script that performs audio fingerprinting for duplicate detection",
             "Write a Python script that analyzes emotions and sentiment in speech",
-        ]
+        ],
     },
-
     "Video": {
         "description": "Video Processing, Analysis, Transcription, Frame Extraction",
         "topics": [
-            "Video Formats", "Codecs", "Frame Extraction", "Video Metadata",
-            "Transcoding", "Scene Detection", "Object Tracking", "Video OCR",
-            "Subtitle Extraction", "Video Thumbnails", "Motion Detection", "Video Quality",
-            "Streaming Formats", "Video Segmentation", "Content Analysis"
+            "Video Formats",
+            "Codecs",
+            "Frame Extraction",
+            "Video Metadata",
+            "Transcoding",
+            "Scene Detection",
+            "Object Tracking",
+            "Video OCR",
+            "Subtitle Extraction",
+            "Video Thumbnails",
+            "Motion Detection",
+            "Video Quality",
+            "Streaming Formats",
+            "Video Segmentation",
+            "Content Analysis",
         ],
         "seeds": [
             "Write a Python script that extracts keyframes from videos and analyzes them",
@@ -662,16 +866,26 @@ DOMAIN_TEMPLATES = {
             "Write a Python script that tracks faces in videos and outputs timecodes",
             "Create a Python script that describes video content with vision-language models",
             "Write a Python script that detects video duplicates based on visual hashing",
-        ]
+        ],
     },
-
     "UV": {
         "description": "Modern Python Package Management with uv, Containerization, Dependency Resolution",
         "topics": [
-            "uv", "pip", "pyproject.toml", "Dependency Management", "Virtual Environments",
-            "Lock Files", "Container Python", "Multi-Stage Builds", "Package Publishing",
-            "Development Dependencies", "Reproducible Builds", "Cache Optimization",
-            "Python Version Management", "Workspace Management", "Tool Installation"
+            "uv",
+            "pip",
+            "pyproject.toml",
+            "Dependency Management",
+            "Virtual Environments",
+            "Lock Files",
+            "Container Python",
+            "Multi-Stage Builds",
+            "Package Publishing",
+            "Development Dependencies",
+            "Reproducible Builds",
+            "Cache Optimization",
+            "Python Version Management",
+            "Workspace Management",
+            "Tool Installation",
         ],
         "seeds": [
             "Write a Dockerfile that uses uv for fast Python dependency installation",
@@ -689,7 +903,7 @@ DOMAIN_TEMPLATES = {
             "Write a Bash script that configures uv workspace for monorepo Python projects",
             "Create a Dockerfile that uses --system flag for containers without venv",
             "Write a CI script that persistently caches uv cache between builds",
-        ]
+        ],
     },
 }
 
@@ -707,7 +921,7 @@ def get_all_topics() -> list[str]:
     topics = set()
     for template in DOMAIN_TEMPLATES.values():
         topics.update(template.get("topics", []))
-    return sorted(list(topics))
+    return sorted(topics)
 
 
 def get_domain_description(domain: str) -> str:
@@ -721,6 +935,7 @@ def get_domain_description(domain: str) -> str:
 # =============================================================================
 # Combined Domain + Role Functions
 # =============================================================================
+
 
 def get_all_templates() -> dict[str, dict[str, Any]]:
     """Get all templates (both domains and roles).
