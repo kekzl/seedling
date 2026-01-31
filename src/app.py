@@ -5,9 +5,12 @@ Main Gradio Application
 
 from __future__ import annotations
 
+import asyncio
 import os
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from pathlib import Path
+from queue import Queue, Empty
 from typing import Any
 
 import gradio as gr
@@ -476,47 +479,114 @@ def create_app() -> gr.Blocks:
                 
                 async def run_generation(seeds_text, model, temp, max_tok, num_instr, method):
                     seeds = [l.strip() for l in seeds_text.strip().split("\n") if l.strip()]
-                    
+
                     if len(seeds) < 5:
                         yield "❌ Mindestens 5 Seed Instructions benötigt!", {}
                         return
-                    
-                    log = f"🚀 Starte Generation mit {len(seeds)} Seeds...\n"
-                    log += f"   Model: {model}\n"
-                    log += f"   Method: {method}\n"
-                    log += f"   Target: {num_instr} Instructions\n\n"
-                    
-                    yield log, {"status": "running", "generated": 0}
-                    
+
+                    log_lines = [
+                        f"🚀 Starte Generation mit {len(seeds)} Seeds...",
+                        f"   Model: {model}",
+                        f"   Method: {method}",
+                        f"   Target: {num_instr} Instructions",
+                        "",
+                    ]
+
+                    yield "\n".join(log_lines), {"status": "running", "generated": 0}
+
+                    # Queue for real-time progress updates from generator thread
+                    progress_queue: Queue[str | None] = Queue()
+                    result_holder: dict[str, Any] = {"results": None, "error": None}
+
+                    def on_progress(msg: str) -> None:
+                        """Callback that puts progress messages into the queue."""
+                        progress_queue.put(msg)
+
+                    def run_generator() -> None:
+                        """Run the generator in a separate thread."""
+                        try:
+                            # Create new event loop for this thread
+                            loop = asyncio.new_event_loop()
+                            asyncio.set_event_loop(loop)
+
+                            results = loop.run_until_complete(
+                                generator.generate(
+                                    seeds=seeds,
+                                    model=model,
+                                    temperature=temp,
+                                    max_tokens=max_tok,
+                                    num_instructions=num_instr,
+                                    method=method.lower().replace("-", "_"),
+                                    on_progress=on_progress,
+                                )
+                            )
+                            result_holder["results"] = results
+                        except Exception as e:
+                            result_holder["error"] = str(e)
+                        finally:
+                            # Signal completion
+                            progress_queue.put(None)
+
+                    # Start generator in background thread
+                    executor = ThreadPoolExecutor(max_workers=1)
+                    future = executor.submit(run_generator)
+
+                    # Poll for progress updates while generator runs
                     try:
-                        results = await generator.generate(
-                            seeds=seeds,
-                            model=model,
-                            temperature=temp,
-                            max_tokens=max_tok,
-                            num_instructions=num_instr,
-                            method=method.lower().replace("-", "_"),
-                            on_progress=lambda msg: None
-                        )
-                        
-                        generated_data.clear()
-                        generated_data.extend(results)
-                        
-                        log += f"\n✅ Generation abgeschlossen!\n"
-                        log += f"   Generiert: {len(results)} Instruction-Response-Paare\n"
-                        
-                        stats = {
-                            "status": "completed",
-                            "generated": len(results),
-                            "avg_instruction_length": sum(len(r["instruction"]) for r in results) / len(results) if results else 0,
-                            "avg_response_length": sum(len(r.get("response", "")) for r in results) / len(results) if results else 0,
-                        }
-                        
-                        yield log, stats
-                        
-                    except Exception as e:
-                        log += f"\n❌ Fehler: {str(e)}\n"
-                        yield log, {"status": "error", "error": str(e)}
+                        while True:
+                            try:
+                                # Wait for progress message with timeout
+                                msg = progress_queue.get(timeout=0.5)
+
+                                if msg is None:
+                                    # Generator finished
+                                    break
+
+                                # Add progress message to log
+                                log_lines.append(f"📍 {msg}")
+                                yield "\n".join(log_lines), {
+                                    "status": "running",
+                                    "generated": 0,
+                                    "last_update": msg,
+                                }
+
+                            except Empty:
+                                # No message yet, just continue polling
+                                await asyncio.sleep(0.1)
+                                continue
+
+                        # Wait for thread to fully complete
+                        future.result(timeout=5)
+
+                    finally:
+                        executor.shutdown(wait=False)
+
+                    # Process results
+                    if result_holder["error"]:
+                        log_lines.append(f"\n❌ Fehler: {result_holder['error']}")
+                        yield "\n".join(log_lines), {"status": "error", "error": result_holder["error"]}
+                        return
+
+                    results = result_holder["results"] or []
+                    generated_data.clear()
+                    generated_data.extend(results)
+
+                    log_lines.append("")
+                    log_lines.append("✅ Generation abgeschlossen!")
+                    log_lines.append(f"   Generiert: {len(results)} Instruction-Response-Paare")
+
+                    stats = {
+                        "status": "completed",
+                        "generated": len(results),
+                        "avg_instruction_length": round(
+                            sum(len(r["instruction"]) for r in results) / len(results), 1
+                        ) if results else 0,
+                        "avg_response_length": round(
+                            sum(len(r.get("response", "")) for r in results) / len(results), 1
+                        ) if results else 0,
+                    }
+
+                    yield "\n".join(log_lines), stats
                 
                 generate_btn.click(
                     run_generation,
