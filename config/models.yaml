@@ -19,7 +19,135 @@ default:
 # vram_required: Minimum VRAM in MB for the model to run
 # vram_recommended: Recommended VRAM in MB for optimal performance
 models:
+  # =============================================================================
+  # TOP TIER - Cutting-Edge Models (2025-2026)
+  # =============================================================================
+
+  # Qwen3 - Best overall open-source model family
+  qwen3:32b:
+    description: "Qwen3 32B - Best open-source model, dual-mode thinking"
+    context_length: 131072
+    languages: ["en", "de", "zh", "fr", "es", "ja", "ko", "ar", "ru"]  # 119 languages total
+    strengths:
+      - "Dual-mode (thinking/non-thinking)"
+      - "Best instruction following"
+      - "Excellent for Self-Instruct and Evol-Instruct"
+      - "119 language support"
+    vram_required: 61440    # ~60GB minimum
+    vram_recommended: 65536 # ~64GB recommended
+    license: "Apache 2.0"
+    huggingface: "Qwen/Qwen3-32B"
+
+  qwen3:14b:
+    description: "Qwen3 14B - Great balance for high-end consumer GPUs"
+    context_length: 131072
+    languages: ["en", "de", "zh", "fr", "es", "ja", "ko"]
+    strengths:
+      - "Dual-mode thinking"
+      - "Good instruction generation"
+      - "Multi-language"
+    vram_required: 26624    # ~26GB minimum
+    vram_recommended: 30720 # ~30GB recommended
+    license: "Apache 2.0"
+    huggingface: "Qwen/Qwen3-14B"
+
+  qwen3:8b:
+    description: "Qwen3 8B - Best for 16GB consumer GPUs"
+    context_length: 131072
+    languages: ["en", "de", "zh", "fr", "es"]
+    vram_required: 14336    # ~14GB minimum
+    vram_recommended: 16384 # ~16GB recommended
+    license: "Apache 2.0"
+    huggingface: "Qwen/Qwen3-8B"
+
+  # DeepSeek-R1 - Best reasoning model
+  deepseek-r1-distill-qwen:32b:
+    description: "DeepSeek-R1-Distill-Qwen 32B - Beats o1-mini, best reasoning"
+    context_length: 131072
+    languages: ["en", "zh"]
+    strengths:
+      - "Superior reasoning capabilities"
+      - "Chain-of-thought generation"
+      - "Complex instruction evolution"
+      - "MIT License"
+    vram_required: 61440    # ~60GB minimum
+    vram_recommended: 65536 # ~64GB recommended
+    license: "MIT"
+    huggingface: "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B"
+
+  deepseek-r1-distill-qwen:14b:
+    description: "DeepSeek-R1-Distill-Qwen 14B - Strong reasoning, smaller footprint"
+    context_length: 131072
+    languages: ["en", "zh"]
+    strengths:
+      - "Good reasoning"
+      - "Efficient for Evol-Instruct"
+    vram_required: 26624    # ~26GB minimum
+    vram_recommended: 30720 # ~30GB recommended
+    license: "MIT"
+    huggingface: "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B"
+
+  # QwQ - Specialized reasoning model
+  qwq:32b:
+    description: "QwQ 32B - Reasoning specialist, excellent for complex instructions"
+    context_length: 131072
+    languages: ["en", "zh"]
+    strengths:
+      - "Deep reasoning"
+      - "Mathematical thinking"
+      - "Complex problem decomposition"
+    vram_required: 61440    # ~60GB minimum
+    vram_recommended: 65536 # ~64GB recommended
+    license: "Apache 2.0"
+    huggingface: "Qwen/QwQ-32B"
+
+  # Llama 4 - Meta's latest MoE models
+  llama4-scout:
+    description: "Llama 4 Scout - 10M context, MoE architecture (17B active/109B total)"
+    context_length: 10485760  # 10M tokens!
+    languages: ["en", "de", "fr", "es", "it", "pt", "hi", "th"]
+    strengths:
+      - "Massive 10M context window"
+      - "Efficient MoE (only 17B active)"
+      - "Natively multimodal"
+      - "Great for long-form generation"
+    vram_required: 45056    # ~44GB minimum (MoE efficiency)
+    vram_recommended: 49152 # ~48GB recommended
+    license: "Llama 4 Community License"
+    huggingface: "meta-llama/Llama-4-Scout-17B-16E-Instruct"
+
+  llama4-maverick:
+    description: "Llama 4 Maverick - Beats GPT-4o, 128 experts (17B active/400B total)"
+    context_length: 1048576  # 1M tokens
+    languages: ["en", "de", "fr", "es", "it", "pt", "hi", "th"]
+    strengths:
+      - "Beats GPT-4o on many benchmarks"
+      - "128 expert MoE"
+      - "Excellent instruction following"
+      - "Natively multimodal"
+    vram_required: 45056    # ~44GB minimum (MoE efficiency)
+    vram_recommended: 49152 # ~48GB recommended
+    license: "Llama 4 Community License"
+    huggingface: "meta-llama/Llama-4-Maverick-17B-128E-Instruct"
+
+  # =============================================================================
+  # CODE SPECIALISTS
+  # =============================================================================
+
   # Qwen 2.5 Coder - Best for code generation
+  qwen2.5-coder:32b:
+    description: "Qwen 2.5 Coder 32B - Best open-source code model"
+    context_length: 131072
+    languages: ["en", "de", "zh"]
+    strengths:
+      - "Best code generation"
+      - "Technical documentation"
+      - "Highest HumanEval score"
+    vram_required: 61440    # ~60GB minimum
+    vram_recommended: 65536 # ~64GB recommended
+    license: "Apache 2.0"
+    huggingface: "Qwen/Qwen2.5-Coder-32B-Instruct"
+
   qwen2.5-coder:14b:
     description: "Qwen 2.5 Coder 14B - Excellent for code and technical content"
     context_length: 32768
@@ -30,6 +158,8 @@ models:
       - "Multi-language support"
     vram_required: 26624    # ~26GB minimum
     vram_recommended: 28672 # ~28GB recommended
+    license: "Apache 2.0"
+    huggingface: "Qwen/Qwen2.5-Coder-14B-Instruct"
 
   qwen2.5-coder:7b:
     description: "Qwen 2.5 Coder 7B - Good balance of speed and quality"
@@ -37,6 +167,40 @@ models:
     languages: ["en", "de", "zh"]
     vram_required: 12288    # ~12GB minimum
     vram_recommended: 14336 # ~14GB recommended
+    license: "Apache 2.0"
+    huggingface: "Qwen/Qwen2.5-Coder-7B-Instruct"
+
+  # DeepSeek Coder V2
+  deepseek-coder-v2:16b:
+    description: "DeepSeek Coder V2 16B - Strong code model with reasoning"
+    context_length: 131072
+    languages: ["en", "zh"]
+    strengths:
+      - "Code generation"
+      - "Code reasoning"
+      - "Bug fixing"
+    vram_required: 30720    # ~30GB minimum
+    vram_recommended: 32768 # ~32GB recommended
+    license: "MIT"
+    huggingface: "deepseek-ai/DeepSeek-Coder-V2-Instruct"
+
+  # =============================================================================
+  # EFFICIENT MODELS (Consumer GPUs)
+  # =============================================================================
+
+  # SmolLM3 - Best small model
+  smollm3:3b:
+    description: "SmolLM3 3B - Best 3B model, beats Llama-3.2-3B and Qwen2.5-3B"
+    context_length: 8192
+    languages: ["en"]
+    strengths:
+      - "Dual-mode reasoning"
+      - "Very efficient"
+      - "Good for weak hardware"
+    vram_required: 6144     # ~6GB minimum
+    vram_recommended: 8192  # ~8GB recommended
+    license: "Apache 2.0"
+    huggingface: "HuggingFaceTB/SmolLM3-3B"
 
   # Qwen 2.5 General
   qwen2.5:7b:
@@ -45,6 +209,7 @@ models:
     languages: ["en", "de", "zh"]
     vram_required: 12288    # ~12GB minimum
     vram_recommended: 14336 # ~14GB recommended
+    license: "Apache 2.0"
 
   qwen2.5:14b:
     description: "Qwen 2.5 14B - Higher quality general purpose"
@@ -52,6 +217,20 @@ models:
     languages: ["en", "de", "zh"]
     vram_required: 26624    # ~26GB minimum
     vram_recommended: 28672 # ~28GB recommended
+    license: "Apache 2.0"
+
+  # Llama 3.3
+  llama3.3:70b:
+    description: "Llama 3.3 70B - Best formatting and clean output"
+    context_length: 131072
+    languages: ["en"]
+    strengths:
+      - "Clean formatting"
+      - "Stable ecosystem"
+      - "Good for documentation"
+    vram_required: 131072   # ~128GB minimum
+    vram_recommended: 143360 # ~140GB recommended
+    license: "Llama 3.3 Community License"
 
   # Llama 3.1
   llama3.1:8b:
@@ -61,17 +240,21 @@ models:
     vram_required: 14336    # ~14GB minimum
     vram_recommended: 16384 # ~16GB recommended
 
+  # =============================================================================
+  # LEGACY MODELS (still supported)
+  # =============================================================================
+
   # CodeLlama
   codellama:13b:
-    description: "CodeLlama 13B - Specialized for code"
+    description: "CodeLlama 13B - Specialized for code (legacy)"
     context_length: 16384
     languages: ["en"]
     vram_required: 24576    # ~24GB minimum
     vram_recommended: 26624 # ~26GB recommended
 
-  # DeepSeek Coder
+  # DeepSeek Coder (v1)
   deepseek-coder:6.7b:
-    description: "DeepSeek Coder 6.7B - Efficient code model"
+    description: "DeepSeek Coder 6.7B - Efficient code model (legacy)"
     context_length: 16384
     languages: ["en", "zh"]
     vram_required: 12288    # ~12GB minimum
