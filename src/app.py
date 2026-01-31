@@ -13,7 +13,13 @@ from typing import Any
 import gradio as gr
 import yaml
 
-from .domains import DOMAIN_TEMPLATES, get_domain_seeds
+from .domains import DOMAIN_TEMPLATES, get_domain_seeds, get_template_choices
+from .roles import (
+    get_role_manager,
+    get_predefined_roles,
+    get_role_seeds,
+    generate_role_from_name,
+)
 from .generator import InstructionGenerator, GenerationConfig
 from .exporter import DatasetExporter, ArgillaExporter
 
@@ -77,40 +83,211 @@ def create_app() -> gr.Blocks:
         Erstelle hochwertige Instruction-Response-Paare für SFT mit lokalen LLMs.
         """)
         
+        # Get role manager for predefined roles
+        role_manager = get_role_manager()
+        predefined_roles = get_predefined_roles()
+
+        # Build role choices grouped by category
+        role_choices_by_category = {}
+        for category_info in role_manager.get_categories():
+            cat_name = category_info.get("name", "Other")
+            roles = role_manager.get_roles_by_category(cat_name)
+            if roles:
+                role_choices_by_category[cat_name] = [
+                    (role.display_name, role.name) for role in roles
+                ]
+
         with gr.Tabs():
             # =================================================================
-            # TAB 1: Domain Selection
+            # TAB 1: Template Selection (Domains + Roles)
             # =================================================================
-            with gr.Tab("1️⃣ Domain auswählen"):
-                gr.Markdown("### Wähle eine oder mehrere Domänen")
-                
-                domain_checkboxes = gr.CheckboxGroup(
-                    choices=list(DOMAIN_TEMPLATES.keys()),
-                    label="Domänen",
-                    info="Wähle die Domänen für die du Daten generieren möchtest"
-                )
-                
-                with gr.Accordion("Domain Details", open=False):
-                    domain_info = gr.Markdown()
-                
-                def show_domain_info(domains: list[str] | None) -> str:
-                    """Display detailed information about selected domains."""
-                    if not domains:
-                        return "Wähle Domänen um Details zu sehen."
-                    info = ""
-                    for d in domains:
-                        template = DOMAIN_TEMPLATES.get(d, {})
-                        info += f"### {d}\n"
-                        info += f"**Beschreibung:** {template.get('description', 'N/A')}\n\n"
-                        info += f"**Topics:** {', '.join(template.get('topics', []))}\n\n"
-                        info += "---\n"
-                    return info
-                
-                domain_checkboxes.change(
-                    show_domain_info, 
-                    inputs=[domain_checkboxes], 
-                    outputs=[domain_info]
-                )
+            with gr.Tab("1️⃣ Template Selection"):
+                gr.Markdown("""
+                ### Choose Templates for Training Data Generation
+
+                Select from **Technical Domains** (DevOps, Cloud, etc.) or
+                **Professional Roles** (typical roles that can be augmented by AI).
+
+                You can also generate a custom role by entering any profession name.
+                """)
+
+                with gr.Tabs():
+                    # ---------------------------------------------------------
+                    # Sub-Tab: Technical Domains
+                    # ---------------------------------------------------------
+                    with gr.Tab("Technical Domains"):
+                        domain_checkboxes = gr.CheckboxGroup(
+                            choices=list(DOMAIN_TEMPLATES.keys()),
+                            label="Domains",
+                            info="Select domains for data generation"
+                        )
+
+                        with gr.Accordion("Domain Details", open=False):
+                            domain_info = gr.Markdown()
+
+                        def show_domain_info(domains: list[str] | None) -> str:
+                            """Display detailed information about selected domains."""
+                            if not domains:
+                                return "Select domains to see details."
+                            info = ""
+                            for d in domains:
+                                template = DOMAIN_TEMPLATES.get(d, {})
+                                info += f"### {d}\n"
+                                info += f"**Description:** {template.get('description', 'N/A')}\n\n"
+                                info += f"**Topics:** {', '.join(template.get('topics', []))}\n\n"
+                                info += f"**Seed Count:** {len(template.get('seeds', []))}\n\n"
+                                info += "---\n"
+                            return info
+
+                        domain_checkboxes.change(
+                            show_domain_info,
+                            inputs=[domain_checkboxes],
+                            outputs=[domain_info]
+                        )
+
+                    # ---------------------------------------------------------
+                    # Sub-Tab: Predefined Roles
+                    # ---------------------------------------------------------
+                    with gr.Tab("Professional Roles"):
+                        gr.Markdown("""
+                        **Predefined roles** that may be augmented or replaced by AI.
+                        Each role comes with relevant topics and seed instructions.
+                        """)
+
+                        # Create role selection by category
+                        role_selections = {}
+                        for cat_name, roles in role_choices_by_category.items():
+                            with gr.Accordion(f"{cat_name}", open=False):
+                                role_selections[cat_name] = gr.CheckboxGroup(
+                                    choices=[r[0] for r in roles],
+                                    label=f"{cat_name} Roles",
+                                )
+
+                        with gr.Accordion("Role Details", open=False):
+                            role_info = gr.Markdown()
+
+                        def show_role_info(*selected_roles_lists) -> str:
+                            """Display detailed information about selected roles."""
+                            all_selected = []
+                            for roles_list in selected_roles_lists:
+                                if roles_list:
+                                    all_selected.extend(roles_list)
+
+                            if not all_selected:
+                                return "Select roles to see details."
+
+                            info = ""
+                            for display_name in all_selected:
+                                # Find the role by display name
+                                for role in predefined_roles.values():
+                                    if role.display_name == display_name:
+                                        info += f"### {role.display_name}\n"
+                                        info += f"**Category:** {role.category}\n\n"
+                                        info += f"**Description:** {role.description}\n\n"
+                                        info += f"**Topics:** {', '.join(role.topics[:8])}{'...' if len(role.topics) > 8 else ''}\n\n"
+                                        info += f"**Seed Count:** {len(role.seeds)}\n\n"
+                                        info += "---\n"
+                                        break
+                            return info
+
+                        # Connect all role checkboxes to the info display
+                        for checkbox in role_selections.values():
+                            checkbox.change(
+                                show_role_info,
+                                inputs=list(role_selections.values()),
+                                outputs=[role_info]
+                            )
+
+                    # ---------------------------------------------------------
+                    # Sub-Tab: Custom Role Generation
+                    # ---------------------------------------------------------
+                    with gr.Tab("Custom Role (AI Generated)"):
+                        gr.Markdown("""
+                        ### Generate a Custom Role
+
+                        Enter any profession or role name and the system will automatically
+                        generate relevant topics and seed instructions using the LLM.
+
+                        **Examples:** Researcher, Marketing Manager, UX Designer, Journalist,
+                        Pharmacist, Real Estate Agent, Supply Chain Manager, etc.
+                        """)
+
+                        with gr.Row():
+                            with gr.Column(scale=2):
+                                custom_role_input = gr.Textbox(
+                                    label="Role/Profession Name",
+                                    placeholder="e.g., Researcher, UX Designer, Journalist...",
+                                    info="Enter the name of the role you want to generate"
+                                )
+                            with gr.Column(scale=1):
+                                custom_role_model = gr.Dropdown(
+                                    choices=available_models,
+                                    value=available_models[0] if available_models else "qwen2.5-coder:14b",
+                                    label="Model for Generation"
+                                )
+
+                        generate_role_btn = gr.Button("Generate Role Template", variant="primary")
+
+                        with gr.Row():
+                            custom_role_status = gr.Textbox(
+                                label="Status",
+                                interactive=False,
+                                lines=2
+                            )
+
+                        with gr.Accordion("Generated Role Details", open=True):
+                            generated_role_info = gr.Markdown()
+                            generated_role_seeds = gr.Textbox(
+                                label="Generated Seeds (editable)",
+                                lines=10,
+                                interactive=True
+                            )
+
+                        async def generate_custom_role(
+                            role_name: str,
+                            model: str,
+                        ) -> tuple[str, str, str]:
+                            """Generate a custom role from the given name."""
+                            if not role_name or not role_name.strip():
+                                return "Please enter a role name.", "", ""
+
+                            try:
+                                status_messages = []
+                                def on_progress(msg: str):
+                                    status_messages.append(msg)
+
+                                role = await generate_role_from_name(
+                                    role_name=role_name.strip(),
+                                    model=model,
+                                    on_progress=on_progress,
+                                )
+
+                                info = f"""
+### {role.display_name}
+
+**Description:** {role.description}
+
+**Generated Topics ({len(role.topics)}):**
+{', '.join(role.topics)}
+
+**Generated Seeds:** {len(role.seeds)} instructions
+                                """
+
+                                seeds_text = "\n".join(role.seeds)
+
+                                return (
+                                    f"Successfully generated role: {role.display_name}",
+                                    info,
+                                    seeds_text,
+                                )
+                            except Exception as e:
+                                return f"Error: {str(e)}", "", ""
+
+                        generate_role_btn.click(
+                            generate_custom_role,
+                            inputs=[custom_role_input, custom_role_model],
+                            outputs=[custom_role_status, generated_role_info, generated_role_seeds]
+                        )
             
             # =================================================================
             # TAB 2: Seed Instructions
@@ -118,37 +295,70 @@ def create_app() -> gr.Blocks:
             with gr.Tab("2️⃣ Seed Instructions"):
                 gr.Markdown("""
                 ### Seed Instructions
-                
-                Gib 10-50 Beispiel-Instructions als Ausgangspunkt ein.
-                Diese werden verwendet um ähnliche Instructions zu generieren.
+
+                Enter 10-50 example instructions as a starting point.
+                These will be used to generate similar instructions.
+
+                You can load seeds from domains, predefined roles, or use
+                your custom generated role seeds.
                 """)
-                
+
                 with gr.Row():
                     with gr.Column(scale=2):
                         seed_input = gr.Textbox(
-                            label="Seed Instructions (eine pro Zeile)",
-                            placeholder="Schreibe ein Bash-Skript das alle Docker Container stoppt\nErstelle eine Terraform-Konfiguration für einen S3 Bucket\n...",
+                            label="Seed Instructions (one per line)",
+                            placeholder="Write a Bash script that stops all Docker containers\nCreate a Terraform configuration for an S3 bucket\n...",
                             lines=15
                         )
-                    
+
                     with gr.Column(scale=1):
-                        load_template_btn = gr.Button("📥 Template laden")
+                        gr.Markdown("#### Load from Template")
+
+                        template_source = gr.Radio(
+                            choices=["Domain", "Role"],
+                            value="Domain",
+                            label="Template Source"
+                        )
+
                         template_dropdown = gr.Dropdown(
                             choices=list(DOMAIN_TEMPLATES.keys()),
-                            label="Domain Template"
+                            label="Select Template"
                         )
-                        
+
+                        load_template_btn = gr.Button("Load Seeds")
+
                         seed_count = gr.Number(
-                            label="Anzahl Seeds",
+                            label="Seed Count",
                             value=0,
                             interactive=False
                         )
-                
-                def load_template_seeds(domain: str | None) -> tuple[str, int]:
-                    """Load seed instructions from a domain template."""
-                    if not domain:
+
+                        # Add button to load from custom role
+                        use_custom_role_btn = gr.Button("Use Custom Role Seeds")
+
+                def update_template_choices(source: str) -> dict:
+                    """Update template dropdown based on source selection."""
+                    if source == "Domain":
+                        choices = list(DOMAIN_TEMPLATES.keys())
+                    else:
+                        # Get role display names
+                        choices = [role.display_name for role in predefined_roles.values()]
+                    return gr.update(choices=choices, value=choices[0] if choices else None)
+
+                def load_template_seeds(source: str, template_name: str | None) -> tuple[str, int]:
+                    """Load seed instructions from a domain or role template."""
+                    if not template_name:
                         return "", 0
-                    seeds = get_domain_seeds(domain)
+
+                    if source == "Domain":
+                        seeds = get_domain_seeds(template_name)
+                    else:
+                        # Find role by display name
+                        seeds = []
+                        for role in predefined_roles.values():
+                            if role.display_name == template_name:
+                                seeds = role.seeds
+                                break
                     return "\n".join(seeds), len(seeds)
 
                 def count_seeds(text: str) -> int:
@@ -156,17 +366,35 @@ def create_app() -> gr.Blocks:
                     if not text.strip():
                         return 0
                     return len([line for line in text.strip().split("\n") if line.strip()])
-                
+
+                def use_custom_role_seeds(generated_seeds: str) -> tuple[str, int]:
+                    """Use seeds from the custom generated role."""
+                    if not generated_seeds:
+                        return "", 0
+                    return generated_seeds, count_seeds(generated_seeds)
+
+                template_source.change(
+                    update_template_choices,
+                    inputs=[template_source],
+                    outputs=[template_dropdown]
+                )
+
                 load_template_btn.click(
                     load_template_seeds,
-                    inputs=[template_dropdown],
+                    inputs=[template_source, template_dropdown],
                     outputs=[seed_input, seed_count]
                 )
-                
+
                 seed_input.change(
                     count_seeds,
                     inputs=[seed_input],
                     outputs=[seed_count]
+                )
+
+                use_custom_role_btn.click(
+                    use_custom_role_seeds,
+                    inputs=[generated_role_seeds],
+                    outputs=[seed_input, seed_count]
                 )
             
             # =================================================================

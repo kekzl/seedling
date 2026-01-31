@@ -1,0 +1,742 @@
+# Seedling Role Generation Configuration
+# =======================================
+# Configuration for automatic instruction set generation from role names.
+#
+# When a user enters a role/profession name (e.g., "Researcher", "Data Analyst"),
+# the system automatically generates:
+# - Description of the role
+# - Relevant topics/tools
+# - Seed instructions for training data generation
+
+# Role generation settings
+role_generation:
+  # Minimum number of topics to generate per role
+  min_topics: 8
+
+  # Maximum number of topics to generate per role
+  max_topics: 15
+
+  # Minimum number of seed instructions to generate per role
+  min_seeds: 10
+
+  # Maximum number of seed instructions to generate per role
+  max_seeds: 20
+
+  # Temperature for role generation (higher = more creative)
+  temperature: 0.8
+
+  # Maximum tokens for generation
+  max_tokens: 2048
+
+# System prompts for role generation
+prompts:
+  # Prompt for generating role description
+  description: |
+    You are an expert in professional roles and job descriptions.
+    Given a role/profession name, provide a brief, precise description (1-2 sentences)
+    of what this role does and their main responsibilities.
+
+    Focus on:
+    - Core responsibilities
+    - Key skills and expertise areas
+    - Typical work context
+
+    Role: {role_name}
+
+    Description (1-2 sentences, no bullet points):
+
+  # Prompt for generating relevant topics/tools
+  topics: |
+    You are an expert in professional tools and technologies.
+    Given a role/profession name, list the most important tools, technologies,
+    concepts, and skills that this role works with daily.
+
+    Requirements:
+    - List {num_topics} items
+    - Be specific (e.g., "PostgreSQL" not just "databases")
+    - Include both tools and concepts
+    - Order by relevance/importance
+    - One item per line
+    - No numbering or bullet points
+
+    Role: {role_name}
+    Description: {description}
+
+    Topics (one per line):
+
+  # Prompt for generating seed instructions
+  seeds: |
+    You are an expert in creating training data for AI assistants.
+    Given a role/profession, generate diverse, realistic instructions that
+    someone in this role would ask an AI assistant.
+
+    Requirements:
+    - Generate {num_seeds} unique instructions
+    - Each instruction should be specific and actionable
+    - Cover different difficulty levels (beginner to expert)
+    - Include various task types:
+      * Writing code/scripts
+      * Creating documents/templates
+      * Explaining concepts
+      * Troubleshooting problems
+      * Best practices questions
+      * Tool-specific questions
+    - Make instructions realistic and practical
+    - One instruction per line
+    - No numbering or bullet points
+
+    Role: {role_name}
+    Description: {description}
+    Key Topics: {topics}
+
+    Instructions (one per line):
+
+# Cache settings for generated roles
+cache:
+  # Enable caching of generated roles
+  enabled: true
+
+  # Cache directory (relative to project root)
+  directory: ".cache/roles"
+
+  # Cache expiration in days (0 = never expires)
+  expiration_days: 30
+
+# =============================================================================
+# Predefined Roles - Typical roles that may be augmented/replaced by AI
+# =============================================================================
+# These are ready-to-use role templates that users can select directly.
+# Each role has a complete set of description, topics, and seed instructions.
+
+predefined_roles:
+  # ---------------------------------------------------------------------------
+  # Customer Service & Support
+  # ---------------------------------------------------------------------------
+  customer_support:
+    display_name: "Customer Support Agent"
+    category: "Service"
+    description: "Customer inquiry handling, ticket processing, complaint resolution, and service documentation"
+    topics:
+      - "Ticket Systems"
+      - "CRM Software"
+      - "Email Templates"
+      - "Knowledge Base"
+      - "Escalation Procedures"
+      - "SLA Management"
+      - "Customer Communication"
+      - "FAQ Management"
+      - "Chat Support"
+      - "Phone Scripts"
+    seeds:
+      - "Write a professional email response to a customer complaining about delayed delivery"
+      - "Create a template for acknowledging a technical support request"
+      - "Write a script for handling an angry customer requesting a refund"
+      - "Create a FAQ entry explaining the return policy"
+      - "Write a follow-up email template for resolved support tickets"
+      - "Create an escalation procedure document for complex technical issues"
+      - "Write a chat response for common billing questions"
+      - "Create a customer satisfaction survey template"
+      - "Write a response template for warranty claims"
+      - "Create a knowledge base article about account password reset"
+
+  # ---------------------------------------------------------------------------
+  # Content & Writing
+  # ---------------------------------------------------------------------------
+  content_writer:
+    display_name: "Content Writer"
+    category: "Content"
+    description: "Blog posts, marketing copy, social media content, and SEO-optimized articles"
+    topics:
+      - "SEO Writing"
+      - "Blog Posts"
+      - "Social Media"
+      - "Copywriting"
+      - "Content Strategy"
+      - "Keyword Research"
+      - "Headlines"
+      - "Call-to-Action"
+      - "Brand Voice"
+      - "Content Calendar"
+    seeds:
+      - "Write an engaging blog post introduction about sustainable technology"
+      - "Create 5 social media posts promoting a new product launch"
+      - "Write SEO-optimized meta descriptions for product pages"
+      - "Create a content calendar template for monthly blog planning"
+      - "Write compelling call-to-action phrases for landing pages"
+      - "Create an email newsletter template for weekly updates"
+      - "Write product descriptions for an e-commerce store"
+      - "Create a brand voice guideline document"
+      - "Write LinkedIn posts for thought leadership content"
+      - "Create headline variations for A/B testing"
+
+  technical_writer:
+    display_name: "Technical Writer"
+    category: "Content"
+    description: "Documentation, user manuals, API documentation, and technical specifications"
+    topics:
+      - "User Manuals"
+      - "API Documentation"
+      - "Release Notes"
+      - "README Files"
+      - "Technical Specs"
+      - "Markdown"
+      - "Documentation Tools"
+      - "Style Guides"
+      - "Diagrams"
+      - "Tutorials"
+    seeds:
+      - "Write a README.md file for an open-source Python library"
+      - "Create API documentation for a REST endpoint with examples"
+      - "Write a user guide for a software installation process"
+      - "Create release notes for a new software version"
+      - "Write a troubleshooting guide for common error messages"
+      - "Create a quick start guide for new users"
+      - "Write technical specifications for a new feature"
+      - "Create a glossary of technical terms for documentation"
+      - "Write step-by-step tutorials with code examples"
+      - "Create a documentation style guide for consistency"
+
+  translator:
+    display_name: "Translator"
+    category: "Content"
+    description: "Document translation, localization, terminology management, and multilingual content"
+    topics:
+      - "Translation Memory"
+      - "CAT Tools"
+      - "Localization"
+      - "Terminology"
+      - "Glossaries"
+      - "Quality Assurance"
+      - "Cultural Adaptation"
+      - "Machine Translation Post-Editing"
+      - "Style Guides"
+      - "Multilingual SEO"
+    seeds:
+      - "Translate a marketing email from English to German maintaining brand voice"
+      - "Create a terminology glossary for technical software documentation"
+      - "Write guidelines for culturally adapting content for different markets"
+      - "Create a translation quality checklist for reviewers"
+      - "Write a style guide for consistent translations"
+      - "Translate user interface strings with character limits"
+      - "Create a localization brief for a new market launch"
+      - "Write instructions for machine translation post-editing"
+      - "Translate legal terms with appropriate equivalents"
+      - "Create a multilingual keyword list for SEO"
+
+  # ---------------------------------------------------------------------------
+  # Data & Analysis
+  # ---------------------------------------------------------------------------
+  data_analyst:
+    display_name: "Data Analyst"
+    category: "Data"
+    description: "Data processing, visualization, reporting, business intelligence, and insights generation"
+    topics:
+      - "SQL"
+      - "Python"
+      - "Pandas"
+      - "Excel"
+      - "Power BI"
+      - "Tableau"
+      - "Data Cleaning"
+      - "ETL"
+      - "Statistical Analysis"
+      - "Dashboards"
+    seeds:
+      - "Write a SQL query that calculates monthly revenue trends with year-over-year comparison"
+      - "Create a Python script that cleans and transforms messy CSV data"
+      - "Write a Pandas script that generates summary statistics grouped by category"
+      - "Create a SQL query that identifies outliers in sales data"
+      - "Write a Python script that automates Excel report generation"
+      - "Create a dashboard specification for executive KPIs"
+      - "Write SQL queries for customer cohort analysis"
+      - "Create a data quality validation script"
+      - "Write a Python script for automated data pipeline monitoring"
+      - "Create a report template for monthly business reviews"
+
+  market_researcher:
+    display_name: "Market Research Analyst"
+    category: "Data"
+    description: "Market analysis, competitive intelligence, survey design, and trend reporting"
+    topics:
+      - "Survey Design"
+      - "Competitive Analysis"
+      - "Market Trends"
+      - "Consumer Insights"
+      - "SWOT Analysis"
+      - "Statistical Analysis"
+      - "Focus Groups"
+      - "Data Collection"
+      - "Reporting"
+      - "Presentation"
+    seeds:
+      - "Create a competitive analysis template for industry benchmarking"
+      - "Write survey questions for customer satisfaction research"
+      - "Create a SWOT analysis template with guiding questions"
+      - "Write a market trend report outline"
+      - "Create a consumer persona template based on research data"
+      - "Write an executive summary template for research findings"
+      - "Create a data collection methodology document"
+      - "Write interview questions for qualitative research"
+      - "Create a pricing analysis spreadsheet template"
+      - "Write a competitive intelligence monitoring checklist"
+
+  # ---------------------------------------------------------------------------
+  # Finance & Accounting
+  # ---------------------------------------------------------------------------
+  bookkeeper:
+    display_name: "Bookkeeper"
+    category: "Finance"
+    description: "Transaction recording, account reconciliation, financial reports, and expense tracking"
+    topics:
+      - "General Ledger"
+      - "Accounts Payable"
+      - "Accounts Receivable"
+      - "Bank Reconciliation"
+      - "Expense Reports"
+      - "Invoicing"
+      - "Payroll"
+      - "Tax Preparation"
+      - "Financial Statements"
+      - "Accounting Software"
+    seeds:
+      - "Create an invoice template with automatic calculations"
+      - "Write a bank reconciliation procedure document"
+      - "Create an expense report template with categories"
+      - "Write a month-end closing checklist"
+      - "Create a chart of accounts structure for a small business"
+      - "Write a procedure for accounts payable processing"
+      - "Create a cash flow tracking spreadsheet"
+      - "Write an accounts receivable aging report template"
+      - "Create a payroll calculation spreadsheet"
+      - "Write a document retention policy for financial records"
+
+  financial_analyst:
+    display_name: "Financial Analyst"
+    category: "Finance"
+    description: "Financial modeling, forecasting, investment analysis, and budget planning"
+    topics:
+      - "Financial Modeling"
+      - "DCF Analysis"
+      - "Budget Planning"
+      - "Forecasting"
+      - "Variance Analysis"
+      - "KPI Tracking"
+      - "Excel Modeling"
+      - "Financial Reporting"
+      - "Investment Analysis"
+      - "Risk Assessment"
+    seeds:
+      - "Create a DCF valuation model template in Excel"
+      - "Write a budget variance analysis report template"
+      - "Create a financial forecast model with assumptions"
+      - "Write a monthly financial dashboard specification"
+      - "Create a sensitivity analysis template for key variables"
+      - "Write an investment memo template"
+      - "Create a working capital analysis spreadsheet"
+      - "Write a financial risk assessment checklist"
+      - "Create a revenue projection model by product line"
+      - "Write a break-even analysis template"
+
+  tax_preparer:
+    display_name: "Tax Preparer"
+    category: "Finance"
+    description: "Tax return preparation, deduction optimization, compliance checking, and tax planning"
+    topics:
+      - "Tax Forms"
+      - "Deductions"
+      - "Tax Credits"
+      - "Compliance"
+      - "Tax Planning"
+      - "Documentation"
+      - "Filing Deadlines"
+      - "Tax Software"
+      - "Audit Preparation"
+      - "Tax Regulations"
+    seeds:
+      - "Create a tax document checklist for individual returns"
+      - "Write a deduction tracking spreadsheet for small businesses"
+      - "Create a tax planning calendar with key deadlines"
+      - "Write a guide for common tax deductions by category"
+      - "Create an audit preparation document checklist"
+      - "Write a quarterly estimated tax payment schedule"
+      - "Create a tax credit eligibility checklist"
+      - "Write a year-end tax planning checklist"
+      - "Create a record keeping guide for tax documentation"
+      - "Write a summary of recent tax law changes"
+
+  # ---------------------------------------------------------------------------
+  # Legal & Compliance
+  # ---------------------------------------------------------------------------
+  paralegal:
+    display_name: "Paralegal"
+    category: "Legal"
+    description: "Legal research, document preparation, case management, and contract review"
+    topics:
+      - "Legal Research"
+      - "Document Drafting"
+      - "Case Management"
+      - "Contract Review"
+      - "E-Discovery"
+      - "Legal Databases"
+      - "Filing Procedures"
+      - "Client Communication"
+      - "Document Review"
+      - "Legal Formatting"
+    seeds:
+      - "Create a contract review checklist for common clauses"
+      - "Write a legal research memo template"
+      - "Create a case timeline template for litigation support"
+      - "Write a document request letter template"
+      - "Create an intake form for new client matters"
+      - "Write a legal brief formatting guide"
+      - "Create a discovery response tracking spreadsheet"
+      - "Write a confidentiality agreement template"
+      - "Create a court filing checklist by jurisdiction"
+      - "Write a legal hold notice template"
+
+  compliance_officer:
+    display_name: "Compliance Officer"
+    category: "Legal"
+    description: "Regulatory compliance, policy development, risk assessment, and audit coordination"
+    topics:
+      - "Regulatory Frameworks"
+      - "Policy Development"
+      - "Risk Assessment"
+      - "Audit Management"
+      - "Training Programs"
+      - "Reporting"
+      - "Documentation"
+      - "Monitoring"
+      - "Incident Response"
+      - "Compliance Software"
+    seeds:
+      - "Create a compliance policy template with approval workflows"
+      - "Write a risk assessment matrix for regulatory requirements"
+      - "Create an audit preparation checklist"
+      - "Write a compliance training outline for employees"
+      - "Create a regulatory change tracking spreadsheet"
+      - "Write an incident report template"
+      - "Create a compliance monitoring dashboard specification"
+      - "Write a vendor compliance questionnaire"
+      - "Create a policy review and update procedure"
+      - "Write a compliance attestation template"
+
+  # ---------------------------------------------------------------------------
+  # Human Resources
+  # ---------------------------------------------------------------------------
+  hr_recruiter:
+    display_name: "HR Recruiter"
+    category: "HR"
+    description: "Candidate sourcing, resume screening, interview coordination, and offer management"
+    topics:
+      - "Job Postings"
+      - "Resume Screening"
+      - "Interview Questions"
+      - "ATS Systems"
+      - "Candidate Pipeline"
+      - "Offer Letters"
+      - "Onboarding"
+      - "Employer Branding"
+      - "Sourcing Strategies"
+      - "Hiring Metrics"
+    seeds:
+      - "Write a job description template for technical positions"
+      - "Create interview questions for assessing cultural fit"
+      - "Write a candidate rejection email that maintains goodwill"
+      - "Create an offer letter template with key terms"
+      - "Write an onboarding checklist for new hires"
+      - "Create a candidate scoring rubric for interviews"
+      - "Write LinkedIn outreach messages for passive candidates"
+      - "Create a hiring process timeline template"
+      - "Write reference check questions"
+      - "Create a recruitment metrics dashboard specification"
+
+  hr_administrator:
+    display_name: "HR Administrator"
+    category: "HR"
+    description: "Employee records, benefits administration, policy documentation, and HR reporting"
+    topics:
+      - "HRIS Systems"
+      - "Employee Records"
+      - "Benefits Administration"
+      - "Policy Documentation"
+      - "Leave Management"
+      - "Performance Reviews"
+      - "Employee Handbook"
+      - "HR Reporting"
+      - "Compliance"
+      - "Offboarding"
+    seeds:
+      - "Create an employee handbook section on leave policies"
+      - "Write a performance review template with rating criteria"
+      - "Create an exit interview questionnaire"
+      - "Write a benefits enrollment guide for employees"
+      - "Create a PTO tracking spreadsheet"
+      - "Write a workplace policy on remote work"
+      - "Create an employee data privacy notice"
+      - "Write a termination checklist"
+      - "Create an HR metrics monthly report template"
+      - "Write a disciplinary action documentation template"
+
+  # ---------------------------------------------------------------------------
+  # Administrative
+  # ---------------------------------------------------------------------------
+  administrative_assistant:
+    display_name: "Administrative Assistant"
+    category: "Admin"
+    description: "Calendar management, correspondence, document preparation, and office coordination"
+    topics:
+      - "Calendar Management"
+      - "Email Correspondence"
+      - "Document Formatting"
+      - "Meeting Coordination"
+      - "Travel Arrangements"
+      - "Office Supplies"
+      - "Filing Systems"
+      - "Phone Handling"
+      - "Expense Reports"
+      - "Event Planning"
+    seeds:
+      - "Write a professional email requesting a meeting"
+      - "Create a meeting agenda template with action items"
+      - "Write meeting minutes template with follow-up tracking"
+      - "Create a travel itinerary template"
+      - "Write an out-of-office auto-reply message"
+      - "Create a document naming convention guide"
+      - "Write a vendor contact database template"
+      - "Create an event planning checklist"
+      - "Write a phone message template"
+      - "Create a filing system organization guide"
+
+  executive_assistant:
+    display_name: "Executive Assistant"
+    category: "Admin"
+    description: "Executive support, high-level coordination, confidential matters, and stakeholder management"
+    topics:
+      - "Executive Calendar"
+      - "Board Meetings"
+      - "Confidential Documents"
+      - "Stakeholder Communication"
+      - "Travel Coordination"
+      - "Presentation Preparation"
+      - "Report Compilation"
+      - "Event Management"
+      - "Priority Management"
+      - "Delegation"
+    seeds:
+      - "Create a board meeting preparation checklist"
+      - "Write an executive briefing template"
+      - "Create a stakeholder communication matrix"
+      - "Write a confidential document handling procedure"
+      - "Create an executive travel booking checklist"
+      - "Write a delegation tracking spreadsheet"
+      - "Create a priority matrix template for task management"
+      - "Write talking points for executive presentations"
+      - "Create an annual planning calendar for executive activities"
+      - "Write a vendor negotiation preparation document"
+
+  # ---------------------------------------------------------------------------
+  # Research & Analysis
+  # ---------------------------------------------------------------------------
+  researcher:
+    display_name: "Researcher"
+    category: "Research"
+    description: "Scientific research, data analysis, literature review, and publication writing"
+    topics:
+      - "Python"
+      - "R"
+      - "Jupyter Notebooks"
+      - "LaTeX"
+      - "Statistical Analysis"
+      - "Data Visualization"
+      - "Literature Databases"
+      - "Reference Management"
+      - "Experimental Design"
+      - "Scientific Writing"
+    seeds:
+      - "Write a Python script that performs statistical analysis with t-tests and ANOVA"
+      - "Create a LaTeX template for a scientific paper"
+      - "Write a Python function that generates publication-ready plots"
+      - "Create a script that searches PubMed for papers matching keywords"
+      - "Write a Python script that manages BibTeX bibliography entries"
+      - "Create a research proposal outline template"
+      - "Write a literature review summary template"
+      - "Create a data collection protocol document"
+      - "Write a statistical analysis plan template"
+      - "Create a peer review response letter template"
+
+  # ---------------------------------------------------------------------------
+  # Quality & Testing
+  # ---------------------------------------------------------------------------
+  qa_tester:
+    display_name: "QA Tester"
+    category: "Quality"
+    description: "Test case design, bug reporting, regression testing, and quality documentation"
+    topics:
+      - "Test Cases"
+      - "Bug Reports"
+      - "Test Plans"
+      - "Regression Testing"
+      - "Test Automation"
+      - "User Acceptance"
+      - "Performance Testing"
+      - "Test Documentation"
+      - "Defect Tracking"
+      - "Quality Metrics"
+    seeds:
+      - "Create a test case template with expected results"
+      - "Write a bug report template with reproduction steps"
+      - "Create a test plan outline for a new feature"
+      - "Write regression test checklist for release"
+      - "Create a user acceptance testing guide"
+      - "Write test summary report template"
+      - "Create a test coverage matrix"
+      - "Write automated test script template"
+      - "Create a defect severity classification guide"
+      - "Write a quality metrics dashboard specification"
+
+  # ---------------------------------------------------------------------------
+  # Insurance & Medical
+  # ---------------------------------------------------------------------------
+  insurance_underwriter:
+    display_name: "Insurance Underwriter"
+    category: "Insurance"
+    description: "Risk evaluation, policy pricing, application review, and underwriting guidelines"
+    topics:
+      - "Risk Assessment"
+      - "Policy Analysis"
+      - "Pricing Models"
+      - "Application Review"
+      - "Guidelines"
+      - "Claims History"
+      - "Regulatory Compliance"
+      - "Documentation"
+      - "Decision Criteria"
+      - "Portfolio Management"
+    seeds:
+      - "Create a risk assessment checklist for property insurance"
+      - "Write underwriting guidelines for a new product line"
+      - "Create an application review workflow document"
+      - "Write a pricing justification template"
+      - "Create a declination letter template"
+      - "Write a conditional approval letter template"
+      - "Create a risk classification matrix"
+      - "Write an underwriting authority matrix"
+      - "Create a renewal review checklist"
+      - "Write a portfolio risk analysis template"
+
+  medical_coder:
+    display_name: "Medical Coder"
+    category: "Healthcare"
+    description: "Medical coding, billing documentation, compliance review, and claims processing"
+    topics:
+      - "ICD-10 Codes"
+      - "CPT Codes"
+      - "Medical Terminology"
+      - "Billing Documentation"
+      - "Compliance"
+      - "Claims Processing"
+      - "Denial Management"
+      - "Audit Preparation"
+      - "Coding Guidelines"
+      - "EHR Systems"
+    seeds:
+      - "Create a coding audit checklist for compliance"
+      - "Write a denial appeal letter template"
+      - "Create a code selection decision tree"
+      - "Write a documentation improvement query template"
+      - "Create a coding accuracy tracking spreadsheet"
+      - "Write a coding guideline summary document"
+      - "Create a claim scrubbing checklist"
+      - "Write a modifier usage guide"
+      - "Create a coding education resource list"
+      - "Write a compliance audit response template"
+
+  # ---------------------------------------------------------------------------
+  # Project Management
+  # ---------------------------------------------------------------------------
+  project_manager:
+    display_name: "Project Manager"
+    category: "Management"
+    description: "Project planning, team coordination, stakeholder communication, and resource management"
+    topics:
+      - "Agile/Scrum"
+      - "Jira"
+      - "Confluence"
+      - "MS Project"
+      - "Risk Management"
+      - "Gantt Charts"
+      - "Stakeholder Management"
+      - "Resource Planning"
+      - "Budget Tracking"
+      - "Status Reporting"
+    seeds:
+      - "Create a project status report template with milestones and risks"
+      - "Write a script that exports Jira sprint data"
+      - "Create a risk assessment matrix with mitigation strategies"
+      - "Write a meeting agenda template for sprint retrospectives"
+      - "Create a resource allocation spreadsheet"
+      - "Write a project charter template"
+      - "Create a stakeholder communication plan"
+      - "Write a change request template"
+      - "Create a lessons learned document template"
+      - "Write a project closure checklist"
+
+  # ---------------------------------------------------------------------------
+  # Social Media & Marketing
+  # ---------------------------------------------------------------------------
+  social_media_manager:
+    display_name: "Social Media Manager"
+    category: "Marketing"
+    description: "Social media strategy, content scheduling, community management, and analytics"
+    topics:
+      - "Content Calendar"
+      - "Social Platforms"
+      - "Analytics"
+      - "Community Management"
+      - "Engagement"
+      - "Hashtag Strategy"
+      - "Influencer Marketing"
+      - "Paid Social"
+      - "Crisis Management"
+      - "Brand Voice"
+    seeds:
+      - "Create a social media content calendar template"
+      - "Write social media post templates for different platforms"
+      - "Create a community response guideline document"
+      - "Write a social media analytics report template"
+      - "Create an influencer outreach template"
+      - "Write a crisis communication playbook"
+      - "Create a hashtag strategy document"
+      - "Write A/B test plan for social ads"
+      - "Create an engagement tracking spreadsheet"
+      - "Write brand voice guidelines for social media"
+
+# Role categories for UI organization
+categories:
+  - name: "Service"
+    description: "Customer-facing support and service roles"
+  - name: "Content"
+    description: "Writing, documentation, and content creation"
+  - name: "Data"
+    description: "Data analysis and research roles"
+  - name: "Finance"
+    description: "Accounting, financial analysis, and tax"
+  - name: "Legal"
+    description: "Legal support and compliance"
+  - name: "HR"
+    description: "Human resources and recruitment"
+  - name: "Admin"
+    description: "Administrative and executive support"
+  - name: "Research"
+    description: "Scientific and market research"
+  - name: "Quality"
+    description: "Testing and quality assurance"
+  - name: "Insurance"
+    description: "Insurance and underwriting"
+  - name: "Healthcare"
+    description: "Medical coding and healthcare"
+  - name: "Management"
+    description: "Project and program management"
+  - name: "Marketing"
+    description: "Social media and marketing"

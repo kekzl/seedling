@@ -4,11 +4,30 @@ Domain Templates for Seedling.
 Pre-defined domains with seed instructions for various technical areas.
 Each domain contains a description, list of topics, and seed instructions
 that can be used to generate synthetic training data.
+
+This module provides two types of templates:
+1. Technical Domains (DOMAIN_TEMPLATES) - DevOps, Cloud, Security, etc.
+2. Role-based Templates (via roles.py) - Customer Support, Data Analyst, etc.
+
+For role-based instruction sets that may be replaced by AI, see the
+roles.py module and config/roles.yaml.
 """
 
 from __future__ import annotations
 
 from typing import Any
+
+from .roles import (
+    get_role_manager,
+    get_predefined_roles,
+    get_role_choices,
+    get_role_seeds,
+    get_role_as_domain_template,
+    get_all_roles_as_domain_templates,
+    generate_role_from_name,
+    Role,
+    RoleManager,
+)
 
 DOMAIN_TEMPLATES = {
     "DevOps": {
@@ -697,3 +716,57 @@ def get_domain_description(domain: str) -> str:
     if template:
         return template.get("description", "")
     return ""
+
+
+# =============================================================================
+# Combined Domain + Role Functions
+# =============================================================================
+
+def get_all_templates() -> dict[str, dict[str, Any]]:
+    """Get all templates (both domains and roles).
+
+    Returns:
+        Combined dictionary of domain and role templates
+    """
+    templates = DOMAIN_TEMPLATES.copy()
+    templates.update(get_all_roles_as_domain_templates())
+    return templates
+
+
+def get_template_seeds(name: str) -> list[str]:
+    """Get seeds from either a domain or a role.
+
+    Args:
+        name: Domain or role name
+
+    Returns:
+        List of seed instructions
+    """
+    # Try domains first
+    seeds = get_domain_seeds(name)
+    if seeds:
+        return seeds
+
+    # Try roles
+    return get_role_seeds(name)
+
+
+def get_template_choices() -> dict[str, list[str]]:
+    """Get all template choices organized by category.
+
+    Returns:
+        Dictionary with categories as keys and lists of template names as values
+    """
+    choices = {
+        "Technical Domains": list(DOMAIN_TEMPLATES.keys()),
+    }
+
+    # Add role categories
+    role_manager = get_role_manager()
+    for category in role_manager.get_categories():
+        cat_name = category.get("name", "Other")
+        roles = role_manager.get_roles_by_category(cat_name)
+        if roles:
+            choices[f"Roles: {cat_name}"] = [role.display_name for role in roles]
+
+    return choices
