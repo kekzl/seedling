@@ -1,6 +1,6 @@
 services:
   # =============================================================================
-  # Ollama - Local LLM Server
+  # Ollama - Local LLM Server with GPU
   # =============================================================================
   ollama:
     image: ollama/ollama:latest
@@ -18,10 +18,11 @@ services:
               capabilities: [gpu]
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      test: ["CMD-SHELL", "ollama list || exit 1"]
+      interval: 10s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
 
   # =============================================================================
   # Ollama Model Puller - Downloads required models on startup
@@ -38,7 +39,6 @@ services:
     command:
       - |
         echo "Pulling models..."
-        ollama pull qwen2.5-coder:14b
         ollama pull qwen2.5:7b
         echo "Models ready!"
     restart: "no"
@@ -55,8 +55,11 @@ services:
       - ARGILLA_HOME_PATH=/var/lib/argilla
       - ARGILLA_ELASTICSEARCH=http://elasticsearch:9200
       - ARGILLA_REDIS_URL=redis://redis:6379/0
-      # Default credentials (argilla/1234) - change in production!
       - ARGILLA_AUTH_SECRET_KEY=seedling-secret-key-change-me
+      # Default admin user
+      - USERNAME=argilla
+      - PASSWORD=12345678
+      - API_KEY=argilla.apikey
     volumes:
       - argilla_data:/var/lib/argilla
     depends_on:
@@ -117,6 +120,13 @@ services:
       - ./data:/app/data
       - ./config:/app/config
       - ./outputs:/app/outputs
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
     depends_on:
       ollama:
         condition: service_healthy

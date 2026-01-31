@@ -74,7 +74,10 @@ class SystemInfo:
 
     @property
     def available_vram_mb(self) -> int:
-        """Get available VRAM considering OS overhead.
+        """Get available VRAM for model selection considering OS overhead.
+
+        Uses TOTAL VRAM (not free) because Ollama automatically manages model loading/unloading.
+        Model filtering should be based on what the GPU can handle, not what's currently free.
 
         WSL2 and Windows reserve some VRAM for the display system.
         This returns the effectively usable VRAM for ML workloads.
@@ -82,8 +85,8 @@ class SystemInfo:
         if not self.gpus:
             return 0
 
-        # Base available VRAM
-        total_free = sum(gpu.vram_free_mb for gpu in self.gpus)
+        # Use TOTAL VRAM for model selection (Ollama manages loaded models)
+        total_vram = sum(gpu.vram_total_mb for gpu in self.gpus)
 
         # OS-specific overhead adjustments
         if self.is_wsl:
@@ -92,18 +95,27 @@ class SystemInfo:
             # Conservative estimate: 3GB overhead per GPU
             overhead_per_gpu = 3072  # 3GB
             total_overhead = overhead_per_gpu * len(self.gpus)
-            return max(0, total_free - total_overhead)
+            return max(0, total_vram - total_overhead)
         elif self.os_type == "Windows":
             # Native Windows: Similar overhead for DWM (Desktop Window Manager)
             overhead_per_gpu = 2048  # 2GB
             total_overhead = overhead_per_gpu * len(self.gpus)
-            return max(0, total_free - total_overhead)
+            return max(0, total_vram - total_overhead)
         else:
             # Linux without desktop (headless): minimal overhead
             # Linux with desktop: ~1GB overhead
             overhead_per_gpu = 512  # 0.5GB conservative
             total_overhead = overhead_per_gpu * len(self.gpus)
-            return max(0, total_free - total_overhead)
+            return max(0, total_vram - total_overhead)
+
+    @property
+    def current_free_vram_mb(self) -> int:
+        """Get currently free VRAM across all GPUs.
+
+        This reflects real-time availability and may be reduced by loaded models.
+        Use this for monitoring, not for model selection.
+        """
+        return sum(gpu.vram_free_mb for gpu in self.gpus)
 
     @property
     def effective_vram_gb(self) -> float:
@@ -361,11 +373,13 @@ class ModelRequirements:
         vram_required_mb: Required VRAM in megabytes
         vram_recommended_mb: Recommended VRAM for good performance
         description: Human-readable description
+        priority: Quality ranking for instruction generation (lower = better)
     """
     name: str
     vram_required_mb: int
     vram_recommended_mb: int
     description: str = ""
+    priority: int = 50  # Default mid-range priority
 
 
 def load_model_requirements(config_path: Optional[Path] = None) -> dict[str, ModelRequirements]:
@@ -399,7 +413,8 @@ def load_model_requirements(config_path: Optional[Path] = None) -> dict[str, Mod
                 name=model_name,
                 vram_required_mb=vram_required,
                 vram_recommended_mb=vram_recommended,
-                description=model_info.get("description", "")
+                description=model_info.get("description", ""),
+                priority=model_info.get("priority", 50)
             )
 
     except (FileNotFoundError, yaml.YAMLError):
@@ -485,10 +500,10 @@ def get_recommended_models(
         else:
             incompatible.append(model_name)
 
-    # Sort by VRAM requirement (larger models first for recommended)
-    recommended.sort(key=lambda m: model_requirements[m].vram_required_mb, reverse=True)
-    possible.sort(key=lambda m: model_requirements[m].vram_required_mb, reverse=True)
-    incompatible.sort(key=lambda m: model_requirements[m].vram_required_mb)
+    # Sort by priority (lower = better for instruction generation)
+    recommended.sort(key=lambda m: model_requirements[m].priority)
+    possible.sort(key=lambda m: model_requirements[m].priority)
+    incompatible.sort(key=lambda m: model_requirements[m].priority)
 
     return recommended, possible, incompatible
 
