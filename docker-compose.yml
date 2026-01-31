@@ -1,0 +1,119 @@
+version: "3.9"
+
+services:
+  # =============================================================================
+  # Ollama - Local LLM Server
+  # =============================================================================
+  ollama:
+    image: ollama/ollama:latest
+    container_name: seedling-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # =============================================================================
+  # Ollama Model Puller - Downloads required models on startup
+  # =============================================================================
+  ollama-pull:
+    image: ollama/ollama:latest
+    container_name: seedling-ollama-pull
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      - OLLAMA_HOST=ollama:11434
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        echo "Pulling models..."
+        ollama pull qwen2.5-coder:14b
+        ollama pull qwen2.5:7b
+        echo "Models ready!"
+    restart: "no"
+
+  # =============================================================================
+  # Argilla - Data Curation Platform
+  # =============================================================================
+  argilla:
+    image: argilla/argilla-server:latest
+    container_name: seedling-argilla
+    ports:
+      - "6900:6900"
+    environment:
+      - ARGILLA_HOME_PATH=/var/lib/argilla
+      - ARGILLA_ELASTICSEARCH=http://elasticsearch:9200
+      # Default credentials - change in production!
+      - ARGILLA_AUTH_SECRET_KEY=seedling-secret-key-change-me
+      - DEFAULT_USER_ENABLED=true
+      - DEFAULT_USER_PASSWORD=admin
+      - DEFAULT_USER_API_KEY=argilla.apikey
+    volumes:
+      - argilla_data:/var/lib/argilla
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # =============================================================================
+  # Elasticsearch - Backend for Argilla
+  # =============================================================================
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+    container_name: seedling-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -q '\"status\":\"green\"\\|\"status\":\"yellow\"'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+  # =============================================================================
+  # Seedling Web UI - Main Application
+  # =============================================================================
+  seedling:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: seedling-app
+    ports:
+      - "7860:7860"
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - ARGILLA_API_URL=http://argilla:6900
+      - ARGILLA_API_KEY=argilla.apikey
+      - HF_TOKEN=${HF_TOKEN:-}
+    volumes:
+      - ./data:/app/data
+      - ./config:/app/config
+      - ./outputs:/app/outputs
+    depends_on:
+      ollama:
+        condition: service_healthy
+      argilla:
+        condition: service_started
+    restart: unless-stopped
+
+volumes:
+  ollama_data:
+  argilla_data:
+  elasticsearch_data:
