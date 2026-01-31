@@ -348,6 +348,195 @@ DOMAIN_TEMPLATES = {
             "Schreibe eine GraphQL Subscription für Real-time Updates",
         ]
     },
+
+    "Docker": {
+        "description": "Docker Container, Images, Dockerfile, Registry, Networking",
+        "topics": [
+            "Dockerfile", "Docker Build", "Docker Run", "Docker Images",
+            "Docker Volumes", "Docker Networks", "Docker Registry", "Multi-Stage Builds",
+            "Container Debugging", "Docker Logs", "Docker Exec", "Docker Prune",
+            "Health Checks", "Environment Variables", "Docker Secrets"
+        ],
+        "seeds": [
+            "Schreibe ein Dockerfile für eine Python Flask Anwendung mit Multi-Stage Build",
+            "Erstelle einen Docker Befehl der alle gestoppten Container löscht",
+            "Schreibe ein Dockerfile für eine Node.js Anwendung mit npm ci und non-root User",
+            "Erstelle einen Docker Run Befehl mit Volume Mounts und Port Mappings",
+            "Schreibe ein Dockerfile mit Health Check für einen Nginx Webserver",
+            "Erstelle einen Docker Befehl der Logs von mehreren Containern gleichzeitig anzeigt",
+            "Schreibe ein Dockerfile für eine Go Anwendung mit scratch Base Image",
+            "Erstelle einen Docker Build Befehl mit Build Args und Cache Management",
+            "Schreibe einen Docker Befehl der in einen laufenden Container eine Shell öffnet",
+            "Erstelle ein Dockerfile für eine Java Spring Boot Anwendung mit JRE Runtime",
+            "Schreibe einen Docker Befehl der alle ungenutzten Images und Volumes aufräumt",
+            "Erstelle einen Docker Network Befehl für ein isoliertes Bridge Netzwerk",
+            "Schreibe ein Dockerfile mit ENTRYPOINT und CMD Kombination für flexible Starts",
+            "Erstelle einen Docker Befehl der Container Ressourcen-Nutzung überwacht",
+            "Schreibe ein Dockerfile für eine Rust Anwendung mit cargo build --release",
+        ]
+    },
+
+    "DockerCompose": {
+        "description": "Docker Compose Multi-Container Orchestrierung, Services, Networks, Volumes",
+        "topics": [
+            "docker-compose.yml", "Services", "Networks", "Volumes",
+            "Environment Files", "Depends On", "Health Checks", "Profiles",
+            "Build Context", "Replicas", "Resource Limits", "Secrets",
+            "Override Files", "Docker Compose Watch", "Service Discovery"
+        ],
+        "seeds": [
+            "Schreibe eine docker-compose.yml für einen LAMP Stack mit MySQL und phpMyAdmin",
+            "Erstelle eine Docker Compose Konfiguration mit Health Checks und Depends On",
+            "Schreibe eine docker-compose.yml für eine Microservices Architektur mit API Gateway",
+            "Erstelle eine Docker Compose Konfiguration mit Named Volumes für Persistenz",
+            "Schreibe eine docker-compose.yml mit Environment File und Variable Substitution",
+            "Erstelle eine Docker Compose Konfiguration für ELK Stack mit Elasticsearch und Kibana",
+            "Schreibe eine docker-compose.yml mit Build Context und Multi-Stage Dockerfile",
+            "Erstelle eine Docker Compose Konfiguration mit Resource Limits für CPU und Memory",
+            "Schreibe eine docker-compose.yml für Redis Cluster mit mehreren Replicas",
+            "Erstelle eine Docker Compose Konfiguration mit Custom Networks und Aliases",
+            "Schreibe eine docker-compose.yml mit Profiles für Dev und Production Umgebungen",
+            "Erstelle eine Docker Compose Override Datei für lokale Entwicklung",
+            "Schreibe eine docker-compose.yml für PostgreSQL mit automatischem Backup Service",
+            "Erstelle eine Docker Compose Konfiguration mit Traefik Reverse Proxy und SSL",
+            "Schreibe eine docker-compose.yml mit Docker Compose Watch für Hot Reload",
+        ]
+    },
+
+    "Bash": {
+        "description": "Shell Scripting, Command Line Tools, Text Processing, Automation",
+        "topics": [
+            "Bash Scripting", "Shell Variables", "Control Flow", "Functions",
+            "Pipes", "Redirection", "Process Management", "Text Processing",
+            "File Operations", "Error Handling", "Subshells", "Arrays",
+            "Parameter Expansion", "Here Documents", "Signal Handling"
+        ],
+        "seeds": [
+            "Schreibe ein Bash-Skript das Dateien rekursiv nach Größe sortiert auflistet",
+            "Erstelle ein Bash-Skript mit Funktionen für farbige Terminal-Ausgaben",
+            "Schreibe ein Bash-Skript das Argumente parst mit getopts",
+            "Erstelle ein Bash-Skript das parallele Downloads mit Background Jobs durchführt",
+            "Schreibe ein Bash-Skript das eine Konfigurationsdatei parst und Variablen setzt",
+            "Erstelle ein Bash-Skript mit Error Handling und Trap für Cleanup",
+            "Schreibe ein Bash-Skript das Log-Dateien rotiert und komprimiert",
+            "Erstelle ein Bash-Skript das Prozesse nach Memory-Verbrauch überwacht",
+            "Schreibe ein Bash-Skript mit Here Document für Multi-Line SQL Queries",
+            "Erstelle ein Bash-Skript das Dateien nach Datum filtert und verschiebt",
+            "Schreibe ein Bash-Skript das ein Verzeichnis auf Änderungen überwacht",
+            "Erstelle ein Bash-Skript mit Arrays für Batch-Verarbeitung von Dateien",
+            "Schreibe ein Bash-Skript das stdin liest und zeilenweise verarbeitet",
+            "Erstelle ein Bash-Skript mit Lockfile für Single-Instance Ausführung",
+            "Schreibe ein Bash-Skript das Environment Variables aus .env Datei lädt",
+        ]
+    },
+
+    "SSH": {
+        "description": "SSH Verbindungen, Key Management, Tunneling, Remote Execution",
+        "topics": [
+            "SSH Keys", "SSH Config", "SSH Tunnel", "Port Forwarding",
+            "Jump Hosts", "SSH Agent", "SCP", "SFTP", "Remote Commands",
+            "Known Hosts", "Host Key Verification", "ProxyJump", "ControlMaster",
+            "SSH Escape Sequences", "Key Rotation"
+        ],
+        "seeds": [
+            "Schreibe einen SSH Befehl für Local Port Forwarding zu einer Datenbank",
+            "Erstelle eine SSH Config Datei mit mehreren Hosts und ProxyJump",
+            "Schreibe einen SSH Befehl der Remote Commands auf mehreren Servern ausführt",
+            "Erstelle ein Bash-Skript das SSH Keys generiert und auf Server verteilt",
+            "Schreibe einen SSH Tunnel Befehl für Dynamic SOCKS Proxy",
+            "Erstelle eine SSH Config mit ControlMaster für Connection Multiplexing",
+            "Schreibe einen SCP Befehl für rekursives Kopieren mit Bandbreitenlimit",
+            "Erstelle ein Bash-Skript das SSH Agent mit Key Timeout konfiguriert",
+            "Schreibe einen SSH Befehl für Reverse Port Forwarding",
+            "Erstelle eine SSH Config mit unterschiedlichen Keys pro Host",
+            "Schreibe einen SSH Befehl der über Jump Host eine Verbindung aufbaut",
+            "Erstelle ein Bash-Skript das SSH Host Keys in known_hosts verwaltet",
+            "Schreibe einen SFTP Batch-Befehl für automatisierte Dateitransfers",
+            "Erstelle einen SSH Befehl mit Pseudo-Terminal für interaktive Sessions",
+            "Schreibe ein Bash-Skript das SSH Verbindungen mit Timeout überwacht",
+        ]
+    },
+
+    "Curl": {
+        "description": "HTTP Requests, API Testing, Downloads, Authentication",
+        "topics": [
+            "GET Requests", "POST Requests", "Headers", "Authentication",
+            "JSON Data", "File Upload", "Cookies", "SSL/TLS", "Timeouts",
+            "Retry Logic", "Output Formatting", "Follow Redirects",
+            "Rate Limiting", "Proxy", "Debug Mode"
+        ],
+        "seeds": [
+            "Schreibe einen curl Befehl für POST Request mit JSON Body und Headers",
+            "Erstelle einen curl Befehl für API Authentication mit Bearer Token",
+            "Schreibe einen curl Befehl der Response Headers und Body getrennt anzeigt",
+            "Erstelle einen curl Befehl für File Upload mit multipart/form-data",
+            "Schreibe einen curl Befehl mit Retry Logic und Exponential Backoff",
+            "Erstelle einen curl Befehl für Download mit Fortschrittsanzeige und Resume",
+            "Schreibe einen curl Befehl für Basic Authentication mit URL Encoding",
+            "Erstelle einen curl Befehl der Cookies speichert und wiederverwendet",
+            "Schreibe einen curl Befehl mit Client Certificate für mTLS",
+            "Erstelle einen curl Befehl für GraphQL Query mit Variables",
+            "Schreibe einen curl Befehl mit Timeout und Connection Retry",
+            "Erstelle einen curl Befehl der Response Time und HTTP Status misst",
+            "Schreibe einen curl Befehl für PUT Request mit Datei-Inhalt",
+            "Erstelle einen curl Befehl mit Proxy und Proxy Authentication",
+            "Schreibe einen curl Befehl für Parallel Requests mit xargs",
+        ]
+    },
+
+    "Ripgrep": {
+        "description": "Schnelle Textsuche, Regex Patterns, Code Search, Filtering",
+        "topics": [
+            "Pattern Matching", "Regex", "File Type Filtering", "Context Lines",
+            "Ignore Patterns", "Case Sensitivity", "Word Boundaries", "Multiline",
+            "Replace Mode", "JSON Output", "Glob Patterns", "Hidden Files",
+            "Binary Files", "Count Mode", "Files With Matches"
+        ],
+        "seeds": [
+            "Schreibe einen rg Befehl der nach einem Pattern in bestimmten Dateitypen sucht",
+            "Erstelle einen rg Befehl mit Context Lines vor und nach dem Match",
+            "Schreibe einen rg Befehl für Case-Insensitive Suche mit Word Boundaries",
+            "Erstelle einen rg Befehl der nur Dateinamen mit Matches auflistet",
+            "Schreibe einen rg Befehl mit Regex für IP-Adressen in Log-Dateien",
+            "Erstelle einen rg Befehl der bestimmte Verzeichnisse ignoriert",
+            "Schreibe einen rg Befehl für Multiline Pattern Matching",
+            "Erstelle einen rg Befehl mit JSON Output für weitere Verarbeitung",
+            "Schreibe einen rg Befehl der Matches zählt und gruppiert nach Datei",
+            "Erstelle einen rg Befehl mit Glob Pattern für spezifische Pfade",
+            "Schreibe einen rg Befehl der auch in Hidden Files und Directories sucht",
+            "Erstelle einen rg Befehl mit Replace Mode für Text-Substitution",
+            "Schreibe einen rg Befehl für Suche nach TODO und FIXME Kommentaren",
+            "Erstelle einen rg Befehl mit Type-Add für Custom Dateitypen",
+            "Schreibe einen rg Befehl der Regex Groups captured und anzeigt",
+        ]
+    },
+
+    "Cat": {
+        "description": "Datei-Anzeige, Concatenation, Text-Transformation, Pipe-Operationen",
+        "topics": [
+            "File Display", "Concatenation", "Line Numbers", "Non-Printing Characters",
+            "Heredoc", "Pipe Operations", "File Creation", "Tab Display",
+            "End of Line Markers", "Squeeze Blank Lines", "Binary View",
+            "Multiple Files", "Standard Input", "Reverse Output", "Pagination"
+        ],
+        "seeds": [
+            "Schreibe einen cat Befehl der mehrere Dateien mit Zeilennummern anzeigt",
+            "Erstelle einen cat Befehl mit Here Document für Multi-Line Datei-Erstellung",
+            "Schreibe einen cat Befehl der nicht-druckbare Zeichen sichtbar macht",
+            "Erstelle einen cat Befehl kombiniert mit grep für gefilterte Ausgabe",
+            "Schreibe einen cat Befehl der Tabs als ^I und Zeilenenden als $ anzeigt",
+            "Erstelle einen cat Befehl für das Zusammenfügen von Split-Dateien",
+            "Schreibe einen cat Befehl mit Pipe zu wc für Zeilen-Statistiken",
+            "Erstelle einen cat Befehl der aufeinanderfolgende Leerzeilen komprimiert",
+            "Schreibe einen cat Befehl kombiniert mit head und tail für Datei-Ausschnitte",
+            "Erstelle einen cat Befehl mit tee für gleichzeitiges Anzeigen und Speichern",
+            "Schreibe einen cat Befehl für Binary-Dateien mit hexdump Pipe",
+            "Erstelle einen cat Befehl der stdin mit Dateien kombiniert",
+            "Schreibe einen cat Befehl mit sort und uniq für deduplizierte Ausgabe",
+            "Erstelle einen cat Befehl kombiniert mit sed für Text-Transformation",
+            "Schreibe einen cat Befehl mit nl für fortlaufende Nummerierung über Dateien",
+        ]
+    },
 }
 
 
