@@ -193,8 +193,12 @@ Respond in the same language as the question was asked."""
         if on_progress:
             role_info = f" for {role.display_name}" if role else ""
             on_progress(f"Starting Self-Instruct pipeline{role_info}...")
+            on_progress(f"Loading {len(seed_data)} seed instructions...")
 
         distiset = pipeline.run()
+
+        if on_progress:
+            on_progress("Pipeline completed, extracting results...")
 
         # Extract results
         results = []
@@ -265,6 +269,11 @@ Evolved instruction (only output the new instruction, nothing else):"""
 
         results = []
 
+        if on_progress:
+            role_info = f" for {role.display_name}" if role else ""
+            on_progress(f"Starting Evol-Instruct{role_info}...")
+            on_progress(f"Will evolve {len(seeds)} seed instructions")
+
         for i, seed in enumerate(seeds):
             if on_progress:
                 role_info = f" ({role.display_name})" if role else ""
@@ -304,7 +313,13 @@ Evolved instruction (only output the new instruction, nothing else):"""
                             result["role_display_name"] = role.display_name
                         results.append(result)
 
+                        if on_progress:
+                            on_progress(f"Generated {len(results)} pairs (depth {j+1})")
+
                     current = evolved
+
+        if on_progress:
+            on_progress(f"Evol-Instruct completed: {len(results)} instruction-response pairs")
 
         return results[:num_instructions]
     
@@ -358,11 +373,16 @@ Only the question, no answer:"""
 
         results = []
 
+        if on_progress:
+            role_info = f" for {role.display_name}" if role else ""
+            on_progress(f"Starting Magpie generation{role_info}...")
+            on_progress(f"Target: {num_instructions} instruction-response pairs")
+
         # Use seeds as topic hints
         topics = seeds * (num_instructions // len(seeds) + 1)
 
         for i, topic_hint in enumerate(topics[:num_instructions]):
-            if on_progress and i % 10 == 0:
+            if on_progress and i % 5 == 0:
                 role_info = f" for {role.display_name}" if role else ""
                 on_progress(f"Generating {i+1}/{num_instructions}{role_info}...")
 
@@ -404,6 +424,9 @@ Only the question, no answer:"""
                         result["role"] = role.name
                         result["role_display_name"] = role.display_name
                     results.append(result)
+
+        if on_progress:
+            on_progress(f"Magpie completed: {len(results)} instruction-response pairs")
 
         return results
 
