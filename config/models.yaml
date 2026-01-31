@@ -1,0 +1,89 @@
+# Seedling Model Configuration
+# ============================
+
+# Default LLM settings
+default:
+  provider: ollama
+  base_url: ${OLLAMA_BASE_URL:-http://localhost:11434}
+  temperature: 0.7
+  max_tokens: 1024
+  timeout: 120
+
+# Available models
+models:
+  # Qwen 2.5 Coder - Best for code generation
+  qwen2.5-coder:14b:
+    description: "Qwen 2.5 Coder 14B - Excellent for code and technical content"
+    context_length: 32768
+    languages: ["en", "de", "zh"]
+    strengths:
+      - "Code generation"
+      - "Technical documentation"
+      - "Multi-language support"
+    vram_required: "~28GB"
+    
+  qwen2.5-coder:7b:
+    description: "Qwen 2.5 Coder 7B - Good balance of speed and quality"
+    context_length: 32768
+    languages: ["en", "de", "zh"]
+    vram_required: "~14GB"
+
+  # Qwen 2.5 General
+  qwen2.5:7b:
+    description: "Qwen 2.5 7B - General purpose, good instruction following"
+    context_length: 32768
+    languages: ["en", "de", "zh"]
+    vram_required: "~14GB"
+    
+  qwen2.5:14b:
+    description: "Qwen 2.5 14B - Higher quality general purpose"
+    context_length: 32768
+    languages: ["en", "de", "zh"]
+    vram_required: "~28GB"
+
+  # Llama 3.1
+  llama3.1:8b:
+    description: "Meta Llama 3.1 8B - Strong English performance"
+    context_length: 128000
+    languages: ["en"]
+    vram_required: "~16GB"
+
+  # CodeLlama
+  codellama:13b:
+    description: "CodeLlama 13B - Specialized for code"
+    context_length: 16384
+    languages: ["en"]
+    vram_required: "~26GB"
+
+  # DeepSeek Coder
+  deepseek-coder:6.7b:
+    description: "DeepSeek Coder 6.7B - Efficient code model"
+    context_length: 16384
+    languages: ["en", "zh"]
+    vram_required: "~14GB"
+
+# Generation presets
+presets:
+  # For generating diverse instructions
+  instruction_generation:
+    temperature: 0.8
+    max_tokens: 512
+    top_p: 0.95
+    
+  # For generating accurate responses
+  response_generation:
+    temperature: 0.5
+    max_tokens: 2048
+    top_p: 0.9
+    
+  # For evolving instructions (Evol-Instruct)
+  evolution:
+    temperature: 0.9
+    max_tokens: 512
+    top_p: 0.95
+    
+  # For high-quality, deterministic output
+  deterministic:
+    temperature: 0.1
+    max_tokens: 2048
+    top_p: 0.5

@@ -1,0 +1,143 @@
+# Seedling Generation Configuration
+# ==================================
+
+# Self-Instruct settings
+self_instruct:
+  # Number of instructions to generate per seed
+  instructions_per_seed: 5
+  
+  # Criteria for instruction generation
+  criteria: |
+    Generate diverse, specific technical instructions that:
+    1. Are actionable and concrete
+    2. Have a clear expected output
+    3. Cover different difficulty levels
+    4. Include edge cases and error handling scenarios
+    
+  # System prompt for the generator
+  system_prompt: |
+    Du bist ein Experte für das Erstellen von Trainings-Instruktionen für KI-Modelle.
+    Erstelle präzise, technische Instruktionen die:
+    - Klar und eindeutig formuliert sind
+    - Ein konkretes, überprüfbares Ergebnis haben
+    - Verschiedene Schwierigkeitsgrade abdecken
+    - Praxisrelevant für DevOps, SysAdmin oder Entwickler sind
+
+# Evol-Instruct settings
+evol_instruct:
+  # Evolution types to apply
+  evolution_types:
+    - add_constraints      # Add requirements/constraints
+    - increase_reasoning   # Require more complex reasoning
+    - add_edge_cases      # Include error handling
+    - specify_format      # Be more specific about output format
+    - combine_topics      # Combine multiple concepts
+    
+  # Number of evolution steps per seed
+  evolution_depth: 3
+  
+  # Evolution prompt template
+  evolution_prompt: |
+    Erstelle eine komplexere und anspruchsvollere Version dieser Instruktion.
+    
+    Die weiterentwickelte Instruktion sollte:
+    1. Zusätzliche Constraints oder Anforderungen haben
+    2. Mehrstufiges Reasoning erfordern
+    3. Edge Cases oder Fehlerbehandlung berücksichtigen
+    4. Spezifischer bezüglich des erwarteten Output-Formats sein
+    
+    Original:
+    {instruction}
+    
+    Weiterentwickelte Instruktion:
+
+# Magpie settings
+magpie:
+  # Pre-query template for instruction generation
+  pre_query_template: |
+    Basierend auf diesem technischen Thema, formuliere eine konkrete Frage
+    die ein erfahrener Entwickler oder System-Administrator stellen würde.
+    
+  # System prompt for natural instruction generation
+  system_prompt: |
+    Du bist ein erfahrener technischer Experte.
+    Du stellst präzise, praxisrelevante Fragen zu:
+    - Infrastructure as Code und DevOps
+    - Cloud-Architekturen (AWS, Azure, GCP)
+    - System-Administration (Linux, Windows)
+    - Scripting und Automation (PowerShell, Bash, Python)
+    - Security und Compliance
+    - Datenbanken und Data Engineering
+
+# Response generation settings
+response_generation:
+  # System prompt for generating responses
+  system_prompt: |
+    Du bist ein hilfreicher technischer Assistent mit Expertise in DevOps, 
+    Cloud-Infrastruktur, System-Administration und Software-Entwicklung.
+    
+    Deine Antworten sind:
+    - Präzise und auf den Punkt
+    - Mit konkreten Code-Beispielen wo angemessen
+    - Gut strukturiert und lesbar
+    - Mit Erklärungen warum bestimmte Ansätze gewählt wurden
+    
+    Antworte auf Deutsch wenn die Frage auf Deutsch gestellt wurde,
+    sonst auf Englisch.
+    
+  # Whether to include explanations in responses
+  include_explanations: true
+  
+  # Whether to include code examples
+  include_code_examples: true
+
+# Quality filtering
+quality_filter:
+  # Minimum instruction length (characters)
+  min_instruction_length: 20
+  
+  # Maximum instruction length
+  max_instruction_length: 1000
+  
+  # Minimum response length
+  min_response_length: 50
+  
+  # Maximum response length
+  max_response_length: 8000
+  
+  # Filter out instructions containing these patterns
+  blocklist_patterns:
+    - "als KI"
+    - "als Sprachmodell"
+    - "Ich bin ein"
+    - "Sorry, aber"
+    - "Entschuldigung"
+
+# Batch processing
+batch:
+  # Number of parallel requests (careful with VRAM!)
+  parallel_requests: 1
+  
+  # Delay between batches (seconds)
+  batch_delay: 0.5
+  
+  # Save checkpoint every N items
+  checkpoint_interval: 50
+  
+  # Resume from checkpoint if exists
+  resume_from_checkpoint: true
+
+# Output settings
+output:
+  # Default output directory
+  directory: "/app/outputs"
+  
+  # Include metadata in exports
+  include_metadata: true
+  
+  # Metadata fields to include
+  metadata_fields:
+    - "method"
+    - "model"
+    - "timestamp"
+    - "seed_instruction"
