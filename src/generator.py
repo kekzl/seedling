@@ -8,7 +8,7 @@ using various methods like Self-Instruct, Evol-Instruct, and Magpie.
 from __future__ import annotations
 
 import os
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Callable, Optional
 from dataclasses import dataclass, field
 
 from distilabel.models import OllamaLLM
@@ -18,6 +18,7 @@ from distilabel.steps.tasks import TextGeneration, SelfInstruct
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable
+    from .roles import Role
 
 
 @dataclass
@@ -89,11 +90,12 @@ class InstructionGenerator:
         max_tokens: int,
         num_instructions: int,
         method: str = "self_instruct",
-        on_progress: Optional[Callable[[str], None]] = None
+        on_progress: Optional[Callable[[str], None]] = None,
+        role: Optional["Role"] = None,
     ) -> list[dict]:
         """
         Generate instruction-response pairs.
-        
+
         Args:
             seeds: List of seed instructions
             model: Model name (e.g., "qwen2.5-coder:14b")
@@ -102,25 +104,43 @@ class InstructionGenerator:
             num_instructions: Target number of instructions to generate
             method: Generation method (self_instruct, evol_instruct, magpie)
             on_progress: Callback for progress updates
-            
+            role: Optional Role object for role-specific generation
+
         Returns:
             List of instruction-response pairs
         """
-        
+
         if method == "self_instruct":
             return await self._generate_self_instruct(
-                seeds, model, temperature, max_tokens, num_instructions, on_progress
+                seeds, model, temperature, max_tokens, num_instructions, on_progress, role
             )
         elif method == "evol_instruct":
             return await self._generate_evol_instruct(
-                seeds, model, temperature, max_tokens, num_instructions, on_progress
+                seeds, model, temperature, max_tokens, num_instructions, on_progress, role
             )
         elif method == "magpie":
             return await self._generate_magpie(
-                seeds, model, temperature, max_tokens, num_instructions, on_progress
+                seeds, model, temperature, max_tokens, num_instructions, on_progress, role
             )
         else:
             raise ValueError(f"Unknown generation method: {method}")
+
+    def _get_system_prompt_for_role(self, role: Optional["Role"]) -> str:
+        """Get the appropriate system prompt for a role.
+
+        Args:
+            role: Optional Role object
+
+        Returns:
+            System prompt string
+        """
+        if role:
+            return role.get_effective_system_prompt()
+
+        # Default fallback system prompt
+        return """You are a helpful technical assistant.
+Answer questions precisely and with concrete code examples when appropriate.
+Respond in the same language as the question was asked."""
     
     async def _generate_self_instruct(
         self,
@@ -129,57 +149,72 @@ class InstructionGenerator:
         temperature: float,
         max_tokens: int,
         num_instructions: int,
-        on_progress: Optional[Callable[[str], None]] = None
+        on_progress: Optional[Callable[[str], None]] = None,
+        role: Optional["Role"] = None,
     ) -> list[dict]:
         """Generate using Self-Instruct method."""
-        
+
         llm = self._create_llm(model, temperature, max_tokens)
-        
+
         # Prepare seed data
         seed_data = [{"instruction": s} for s in seeds]
-        
+
+        # Get role-specific system prompt
+        system_prompt = self._get_system_prompt_for_role(role)
+
+        # Build criteria for instruction generation based on role
+        if role:
+            criteria = f"Generate diverse, specific instructions for a {role.display_name}. "
+            criteria += f"Focus on: {', '.join(role.topics[:5])}. "
+            criteria += "Include different task types: writing, creating, explaining, troubleshooting."
+        else:
+            criteria = "Generate diverse, specific technical instructions"
+
         # Self-Instruct pipeline
         with Pipeline(name="self-instruct-pipeline") as pipeline:
             load_seeds = LoadDataFromDicts(data=seed_data)
-            
+
             # Generate new instructions based on seeds
             self_instruct = SelfInstruct(
                 llm=llm,
                 num_instructions=min(5, num_instructions // len(seeds)),  # Per seed
-                criteria_for_query_generation="Generate diverse, specific technical instructions",
+                criteria_for_query_generation=criteria,
             )
-            
+
             # Generate responses for instructions
             generate_response = TextGeneration(
                 llm=llm,
-                system_prompt="""Du bist ein hilfreicher technischer Assistent. 
-Beantworte die Frage präzise und mit konkreten Code-Beispielen wenn angemessen.
-Antworte auf Deutsch wenn die Frage auf Deutsch gestellt wurde.""",
+                system_prompt=system_prompt,
             )
-            
+
             load_seeds >> self_instruct >> generate_response
-        
+
         # Run pipeline
         if on_progress:
-            on_progress("Starting Self-Instruct pipeline...")
-        
+            role_info = f" for {role.display_name}" if role else ""
+            on_progress(f"Starting Self-Instruct pipeline{role_info}...")
+
         distiset = pipeline.run()
-        
+
         # Extract results
         results = []
         if distiset and "default" in distiset:
             for row in distiset["default"]["train"]:
                 if "instruction" in row and "generation" in row:
-                    results.append({
+                    result = {
                         "instruction": row["instruction"],
                         "response": row["generation"],
                         "method": "self_instruct",
                         "model": model,
-                    })
-        
+                    }
+                    if role:
+                        result["role"] = role.name
+                        result["role_display_name"] = role.display_name
+                    results.append(result)
+
         if on_progress:
             on_progress(f"Generated {len(results)} instruction-response pairs")
-        
+
         return results[:num_instructions]
     
     async def _generate_evol_instruct(
@@ -189,13 +224,31 @@ Antworte auf Deutsch wenn die Frage auf Deutsch gestellt wurde.""",
         temperature: float,
         max_tokens: int,
         num_instructions: int,
-        on_progress: Optional[Callable[[str], None]] = None
+        on_progress: Optional[Callable[[str], None]] = None,
+        role: Optional["Role"] = None,
     ) -> list[dict]:
         """Generate using Evol-Instruct method (evolve instructions to be more complex)."""
-        
+
         llm = self._create_llm(model, temperature, max_tokens)
-        
-        EVOLUTION_PROMPT = """Given this instruction, create a more complex and challenging version.
+
+        # Build evolution prompt with role context if available
+        if role:
+            role_context = f"This instruction is for a {role.display_name} working with {', '.join(role.topics[:5])}."
+            EVOLUTION_PROMPT = f"""Given this instruction for a {role.display_name}, create a more complex and challenging version.
+{role_context}
+
+The evolved instruction should:
+1. Add constraints or requirements relevant to a {role.display_name}
+2. Require multi-step reasoning
+3. Include edge cases or error handling
+4. Be more specific about expected output format
+
+Original instruction:
+{{instruction}}
+
+Evolved instruction (only output the new instruction, nothing else):"""
+        else:
+            EVOLUTION_PROMPT = """Given this instruction, create a more complex and challenging version.
 The evolved instruction should:
 1. Add constraints or requirements
 2. Require multi-step reasoning
@@ -207,44 +260,52 @@ Original instruction:
 
 Evolved instruction (only output the new instruction, nothing else):"""
 
+        # Get role-specific system prompt for response generation
+        system_prompt = self._get_system_prompt_for_role(role)
+
         results = []
-        
+
         for i, seed in enumerate(seeds):
             if on_progress:
-                on_progress(f"Evolving instruction {i+1}/{len(seeds)}")
-            
+                role_info = f" ({role.display_name})" if role else ""
+                on_progress(f"Evolving instruction {i+1}/{len(seeds)}{role_info}")
+
             # Evolve the instruction multiple times
             current = seed
             evolutions_per_seed = max(1, num_instructions // len(seeds))
-            
+
             for j in range(evolutions_per_seed):
                 # Generate evolved instruction
                 evolved_response = llm.generate([[{
                     "role": "user",
                     "content": EVOLUTION_PROMPT.format(instruction=current)
                 }]])
-                
+
                 if evolved_response and evolved_response[0]:
                     evolved = evolved_response[0][0].strip()
-                    
-                    # Generate response for evolved instruction
-                    response = llm.generate([[{
-                        "role": "user",
-                        "content": evolved
-                    }]])
-                    
+
+                    # Generate response for evolved instruction with role-specific system prompt
+                    response = llm.generate([[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": evolved}
+                    ]])
+
                     if response and response[0]:
-                        results.append({
+                        result = {
                             "instruction": evolved,
                             "response": response[0][0],
                             "original_seed": seed,
                             "evolution_depth": j + 1,
                             "method": "evol_instruct",
                             "model": model,
-                        })
-                    
+                        }
+                        if role:
+                            result["role"] = role.name
+                            result["role_display_name"] = role.display_name
+                        results.append(result)
+
                     current = evolved
-        
+
         return results[:num_instructions]
     
     async def _generate_magpie(
@@ -254,69 +315,96 @@ Evolved instruction (only output the new instruction, nothing else):"""
         temperature: float,
         max_tokens: int,
         num_instructions: int,
-        on_progress: Optional[Callable[[str], None]] = None
+        on_progress: Optional[Callable[[str], None]] = None,
+        role: Optional["Role"] = None,
     ) -> list[dict]:
         """
         Generate using Magpie method.
         Uses model-specific templates to generate natural instructions.
         """
-        
+
         llm = self._create_llm(model, temperature, max_tokens)
-        
-        # Magpie-style: Let the model complete a user turn
-        # This produces more natural, diverse instructions
-        
-        MAGPIE_SYSTEM = """Du bist ein erfahrener Entwickler und System-Administrator.
-Du stellst präzise technische Fragen zu Themen wie:
-- DevOps und Infrastructure as Code
+
+        # Build Magpie system prompt based on role
+        if role:
+            topics_list = "\n".join(f"- {topic}" for topic in role.topics[:10])
+            MAGPIE_SYSTEM = f"""You are an experienced {role.display_name}.
+{role.description}
+
+You ask precise, practical questions about topics such as:
+{topics_list}"""
+
+            instruction_prompt_template = """Based on this topic: "{topic_hint}"
+
+Formulate a concrete, practical question that a {role_name} would ask.
+Only the question, no answer:"""
+        else:
+            MAGPIE_SYSTEM = """You are an experienced developer and system administrator.
+You ask precise technical questions about topics such as:
+- DevOps and Infrastructure as Code
 - Cloud Services (AWS, Azure, GCP)
 - System Administration (Linux, Windows)
-- Scripting und Automation
-- Security und Compliance
-- Datenbanken und Data Engineering"""
+- Scripting and Automation
+- Security and Compliance
+- Databases and Data Engineering"""
+
+            instruction_prompt_template = """Based on this topic: "{topic_hint}"
+
+Formulate a concrete, technical question that a developer or admin would ask.
+Only the question, no answer:"""
+
+        # Get role-specific system prompt for response generation
+        response_system_prompt = self._get_system_prompt_for_role(role)
 
         results = []
-        
+
         # Use seeds as topic hints
         topics = seeds * (num_instructions // len(seeds) + 1)
-        
+
         for i, topic_hint in enumerate(topics[:num_instructions]):
             if on_progress and i % 10 == 0:
-                on_progress(f"Generating {i+1}/{num_instructions}...")
-            
-            # Generate instruction using Magpie approach
-            # The model completes what a user would ask
-            instruction_prompt = f"""Basierend auf diesem Thema: "{topic_hint}"
+                role_info = f" for {role.display_name}" if role else ""
+                on_progress(f"Generating {i+1}/{num_instructions}{role_info}...")
 
-Formuliere eine konkrete, technische Frage die ein Entwickler oder Admin stellen würde.
-Nur die Frage, keine Antwort:"""
+            # Generate instruction using Magpie approach
+            if role:
+                instruction_prompt = instruction_prompt_template.format(
+                    topic_hint=topic_hint,
+                    role_name=role.display_name
+                )
+            else:
+                instruction_prompt = instruction_prompt_template.format(topic_hint=topic_hint)
 
             instruction_response = llm.generate([[{
                 "role": "system",
                 "content": MAGPIE_SYSTEM
             }, {
-                "role": "user", 
+                "role": "user",
                 "content": instruction_prompt
             }]])
-            
+
             if instruction_response and instruction_response[0]:
                 instruction = instruction_response[0][0].strip()
-                
-                # Generate response
-                response = llm.generate([[{
-                    "role": "user",
-                    "content": instruction
-                }]])
-                
+
+                # Generate response with role-specific system prompt
+                response = llm.generate([[
+                    {"role": "system", "content": response_system_prompt},
+                    {"role": "user", "content": instruction}
+                ]])
+
                 if response and response[0]:
-                    results.append({
+                    result = {
                         "instruction": instruction,
                         "response": response[0][0],
                         "topic_hint": topic_hint,
                         "method": "magpie",
                         "model": model,
-                    })
-        
+                    }
+                    if role:
+                        result["role"] = role.name
+                        result["role_display_name"] = role.display_name
+                    results.append(result)
+
         return results
 
 

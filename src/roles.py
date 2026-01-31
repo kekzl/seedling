@@ -51,8 +51,86 @@ class RoleConfig:
 
 
 @dataclass
+class Persona:
+    """Defines how the AI assistant should behave and communicate.
+
+    Attributes:
+        tone: Communication tone (formal, professional, casual, friendly, technical)
+        expertise_level: Level of expertise (beginner, intermediate, senior, expert)
+        language: Primary response language (ISO 639-1 code)
+        secondary_languages: Additional supported languages
+        identity_statement: How the assistant should introduce itself
+        traits: Key personality traits (max 5)
+    """
+
+    tone: str = "professional"
+    expertise_level: str = "senior"
+    language: str = "en"
+    secondary_languages: list[str] = field(default_factory=list)
+    identity_statement: str = ""
+    traits: list[str] = field(default_factory=list)
+
+
+@dataclass
+class ResponseGuidelines:
+    """Defines how responses should be structured and formatted.
+
+    Attributes:
+        include_code_examples: Include code examples when relevant
+        include_explanations: Include step-by-step explanations
+        format: Output format (markdown, plain_text, structured)
+        length: Response length (concise, moderate, detailed)
+        max_tokens: Maximum response length in tokens
+        use_headers: Use headers in responses
+        use_bullet_points: Use bullet points
+        use_code_blocks: Use code blocks for code
+        use_tables: Use tables when appropriate
+    """
+
+    include_code_examples: bool = True
+    include_explanations: bool = True
+    format: str = "markdown"
+    length: str = "moderate"
+    max_tokens: int = 1500
+    use_headers: bool = True
+    use_bullet_points: bool = True
+    use_code_blocks: bool = True
+    use_tables: bool = False
+
+
+@dataclass
+class Constraints:
+    """Defines boundaries and limitations for the role.
+
+    Attributes:
+        forbidden: Hard boundaries - things the role must never do
+        cautions: Soft boundaries - areas requiring caution
+        knowledge_limits: Areas where knowledge is limited
+    """
+
+    forbidden: list[str] = field(default_factory=list)
+    cautions: list[str] = field(default_factory=list)
+    knowledge_limits: list[str] = field(default_factory=list)
+
+
+@dataclass
+class Example:
+    """Example interaction demonstrating expected behavior.
+
+    Attributes:
+        instruction: User question or request
+        response: Assistant response demonstrating desired format
+        tags: Optional categorization tags
+    """
+
+    instruction: str
+    response: str
+    tags: list[str] = field(default_factory=list)
+
+
+@dataclass
 class Role:
-    """Represents a role with its instruction set.
+    """Represents a role with its complete instruction set.
 
     Attributes:
         name: Internal role identifier
@@ -62,6 +140,11 @@ class Role:
         topics: List of relevant topics/tools
         seeds: List of seed instructions
         is_generated: Whether this role was dynamically generated
+        persona: Communication and behavior settings
+        system_prompt: Complete system prompt template
+        response_guidelines: Response formatting guidelines
+        constraints: Boundaries and limitations
+        examples: Few-shot example interactions
     """
 
     name: str
@@ -71,6 +154,12 @@ class Role:
     topics: list[str]
     seeds: list[str]
     is_generated: bool = False
+    # New instruction set attributes
+    persona: Persona = field(default_factory=Persona)
+    system_prompt: str = ""
+    response_guidelines: ResponseGuidelines = field(default_factory=ResponseGuidelines)
+    constraints: Constraints = field(default_factory=Constraints)
+    examples: list[Example] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         """Convert role to dictionary format compatible with DOMAIN_TEMPLATES."""
@@ -80,6 +169,104 @@ class Role:
             "seeds": self.seeds,
         }
 
+    def to_full_dict(self) -> dict[str, Any]:
+        """Convert role to complete dictionary with all instruction set attributes."""
+        return {
+            "name": self.name,
+            "display_name": self.display_name,
+            "category": self.category,
+            "description": self.description,
+            "topics": self.topics,
+            "seeds": self.seeds,
+            "persona": {
+                "tone": self.persona.tone,
+                "expertise_level": self.persona.expertise_level,
+                "language": self.persona.language,
+                "secondary_languages": self.persona.secondary_languages,
+                "identity_statement": self.persona.identity_statement,
+                "traits": self.persona.traits,
+            },
+            "system_prompt": self.system_prompt,
+            "response_guidelines": {
+                "include_code_examples": self.response_guidelines.include_code_examples,
+                "include_explanations": self.response_guidelines.include_explanations,
+                "format": self.response_guidelines.format,
+                "length": self.response_guidelines.length,
+                "max_tokens": self.response_guidelines.max_tokens,
+                "use_headers": self.response_guidelines.use_headers,
+                "use_bullet_points": self.response_guidelines.use_bullet_points,
+                "use_code_blocks": self.response_guidelines.use_code_blocks,
+                "use_tables": self.response_guidelines.use_tables,
+            },
+            "constraints": {
+                "forbidden": self.constraints.forbidden,
+                "cautions": self.constraints.cautions,
+                "knowledge_limits": self.constraints.knowledge_limits,
+            },
+            "examples": [
+                {"instruction": ex.instruction, "response": ex.response, "tags": ex.tags}
+                for ex in self.examples
+            ],
+        }
+
+    def get_effective_system_prompt(self) -> str:
+        """Generate the effective system prompt with placeholders resolved."""
+        if self.system_prompt:
+            return self.system_prompt.format(
+                role_name=self.display_name,
+                description=self.description,
+                topics=", ".join(self.topics[:10]),
+                language=self.persona.language,
+            )
+        # Default system prompt if none specified
+        return self._generate_default_system_prompt()
+
+    def _generate_default_system_prompt(self) -> str:
+        """Generate a default system prompt based on role attributes."""
+        lang_instruction = {
+            "en": "Respond in English.",
+            "de": "Antworte auf Deutsch.",
+            "fr": "Répondez en français.",
+            "es": "Responde en español.",
+        }.get(self.persona.language, f"Respond in {self.persona.language}.")
+
+        tone_instruction = {
+            "formal": "Maintain a formal, professional tone.",
+            "professional": "Be professional and clear.",
+            "casual": "Be friendly and approachable.",
+            "friendly": "Be warm and helpful.",
+            "technical": "Use precise technical language.",
+        }.get(self.persona.tone, "Be professional and clear.")
+
+        expertise_instruction = {
+            "beginner": "Explain concepts thoroughly, assuming limited prior knowledge.",
+            "intermediate": "Provide balanced explanations suitable for practitioners.",
+            "senior": "Provide expert-level insights with practical depth.",
+            "expert": "Engage at an advanced level, assuming deep domain expertise.",
+        }.get(self.persona.expertise_level, "Provide expert-level insights.")
+
+        prompt = f"""You are an experienced {self.display_name}.
+
+{self.description}
+
+Your expertise includes: {", ".join(self.topics[:10])}.
+
+Guidelines:
+- {tone_instruction}
+- {expertise_instruction}
+- Provide accurate, actionable advice
+- Include practical examples when appropriate
+- Acknowledge limitations when uncertain
+- {lang_instruction}"""
+
+        # Add constraints if defined
+        if self.constraints.forbidden:
+            prompt += "\n\nImportant boundaries:"
+            for constraint in self.constraints.forbidden[:5]:
+                prompt += f"\n- {constraint}"
+
+        return prompt
+
     @classmethod
     def from_dict(
         cls,
@@ -88,6 +275,50 @@ class Role:
         is_generated: bool = False,
     ) -> "Role":
         """Create a Role from a dictionary."""
+        # Parse persona if present
+        persona_data = data.get("persona", {})
+        persona = Persona(
+            tone=persona_data.get("tone", "professional"),
+            expertise_level=persona_data.get("expertise_level", "senior"),
+            language=persona_data.get("language", "en"),
+            secondary_languages=persona_data.get("secondary_languages", []),
+            identity_statement=persona_data.get("identity_statement", ""),
+            traits=persona_data.get("traits", []),
+        )
+
+        # Parse response guidelines if present
+        guidelines_data = data.get("response_guidelines", {})
+        response_guidelines = ResponseGuidelines(
+            include_code_examples=guidelines_data.get("include_code_examples", True),
+            include_explanations=guidelines_data.get("include_explanations", True),
+            format=guidelines_data.get("format", "markdown"),
+            length=guidelines_data.get("length", "moderate"),
+            max_tokens=guidelines_data.get("max_tokens", 1500),
+            use_headers=guidelines_data.get("use_headers", True),
+            use_bullet_points=guidelines_data.get("use_bullet_points", True),
+            use_code_blocks=guidelines_data.get("use_code_blocks", True),
+            use_tables=guidelines_data.get("use_tables", False),
+        )
+
+        # Parse constraints if present
+        constraints_data = data.get("constraints", {})
+        constraints = Constraints(
+            forbidden=constraints_data.get("forbidden", []),
+            cautions=constraints_data.get("cautions", []),
+            knowledge_limits=constraints_data.get("knowledge_limits", []),
+        )
+
+        # Parse examples if present
+        examples_data = data.get("examples", [])
+        examples = [
+            Example(
+                instruction=ex.get("instruction", ""),
+                response=ex.get("response", ""),
+                tags=ex.get("tags", []),
+            )
+            for ex in examples_data
+        ]
+
         return cls(
             name=name,
             display_name=data.get("display_name", name.replace("_", " ").title()),
@@ -96,6 +327,11 @@ class Role:
             topics=data.get("topics", []),
             seeds=data.get("seeds", []),
             is_generated=is_generated,
+            persona=persona,
+            system_prompt=data.get("system_prompt", ""),
+            response_guidelines=response_guidelines,
+            constraints=constraints,
+            examples=examples,
         )
 
 

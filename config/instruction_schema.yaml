@@ -1,0 +1,254 @@
+# Seedling Instruction Set Schema
+# ================================
+# This file defines the complete schema for role-based instruction sets.
+# Use this as a reference when creating new roles or extending existing ones.
+
+# =============================================================================
+# SCHEMA DEFINITION
+# =============================================================================
+# A complete instruction set consists of the following components:
+
+schema_version: "1.0"
+
+# -----------------------------------------------------------------------------
+# 1. ROLE IDENTITY (Required)
+# -----------------------------------------------------------------------------
+# Basic identification and categorization of the role.
+
+role_identity:
+  # Internal identifier (snake_case, unique)
+  name: "string (required)"
+
+  # Human-readable name for UI display
+  display_name: "string (required)"
+
+  # Category for grouping in UI (e.g., Finance, Data, Legal)
+  category: "string (required)"
+
+  # Brief description of the role's responsibilities (1-2 sentences)
+  description: "string (required)"
+
+# -----------------------------------------------------------------------------
+# 2. DOMAIN KNOWLEDGE (Required)
+# -----------------------------------------------------------------------------
+# Defines the expertise areas and seed instructions for training data generation.
+
+domain_knowledge:
+  # List of 8-15 specific tools, technologies, and concepts
+  # Be specific: "PostgreSQL" not "databases"
+  topics:
+    - "string (required, min 8 items)"
+
+  # Seed instructions for generating training data (10-20 items)
+  # Each should start with an action verb (Write, Create, Explain, etc.)
+  seeds:
+    - "string (required, min 10 items)"
+
+# -----------------------------------------------------------------------------
+# 3. PERSONA (New - Optional but Recommended)
+# -----------------------------------------------------------------------------
+# Defines how the AI assistant should behave and communicate.
+
+persona:
+  # Communication tone
+  # Options: formal, professional, casual, friendly, technical
+  tone: "professional"
+
+  # Expertise level for responses
+  # Options: beginner, intermediate, senior, expert
+  expertise_level: "senior"
+
+  # Primary response language (ISO 639-1 code)
+  language: "en"
+
+  # Secondary languages supported (optional)
+  secondary_languages: ["de", "fr"]
+
+  # How the assistant should introduce itself (optional)
+  identity_statement: "I am an experienced {role} assistant..."
+
+  # Key personality traits (optional, max 5)
+  traits:
+    - "precise"
+    - "helpful"
+    - "thorough"
+
+# -----------------------------------------------------------------------------
+# 4. SYSTEM PROMPT (New - Required for Full Instruction Set)
+# -----------------------------------------------------------------------------
+# The complete system prompt template for the LLM.
+# Supports placeholders: {role_name}, {description}, {topics}, {language}
+
+system_prompt: |
+  You are an experienced {role_name} with deep expertise in {topics}.
+
+  Your role: {description}
+
+  Guidelines:
+  - Provide accurate, actionable advice
+  - Include practical examples when appropriate
+  - Acknowledge limitations when uncertain
+  - Respond in {language}
+
+# -----------------------------------------------------------------------------
+# 5. RESPONSE GUIDELINES (New - Optional but Recommended)
+# -----------------------------------------------------------------------------
+# Defines how responses should be structured and formatted.
+
+response_guidelines:
+  # Include code examples when relevant
+  include_code_examples: true
+
+  # Include step-by-step explanations
+  include_explanations: true
+
+  # Preferred output format
+  # Options: markdown, plain_text, structured
+  format: "markdown"
+
+  # Response length guidance
+  # Options: concise (100-300 words), moderate (300-800), detailed (800+)
+  length: "moderate"
+
+  # Maximum response length in tokens (optional)
+  max_tokens: 1500
+
+  # Structure preferences
+  structure:
+    use_headers: true
+    use_bullet_points: true
+    use_code_blocks: true
+    use_tables: false
+
+# -----------------------------------------------------------------------------
+# 6. CONSTRAINTS (New - Optional but Recommended)
+# -----------------------------------------------------------------------------
+# Defines what the role should NOT do or areas to be careful about.
+
+constraints:
+  # Hard boundaries - things the role must never do
+  forbidden:
+    - "Do not provide specific legal advice"
+    - "Do not share confidential information"
+    - "Do not make financial guarantees"
+
+  # Soft boundaries - areas requiring caution
+  cautions:
+    - "Be careful with region-specific regulations"
+    - "Recommend professional consultation for complex cases"
+
+  # Knowledge cutoff areas
+  knowledge_limits:
+    - "Cannot access real-time data"
+    - "Training data may not reflect latest regulations"
+
+# -----------------------------------------------------------------------------
+# 7. FEW-SHOT EXAMPLES (New - Optional but Highly Recommended)
+# -----------------------------------------------------------------------------
+# Example interactions that demonstrate the expected behavior.
+# These are used for fine-tuning and setting the response style.
+
+examples:
+  - instruction: "Example user question or request"
+    response: "Example assistant response demonstrating desired format and tone"
+    tags: ["category", "difficulty"]
+
+  # Minimum 3-5 examples recommended covering different scenarios:
+  # - Simple factual question
+  # - Complex multi-step task
+  # - Code/template generation
+  # - Troubleshooting/problem-solving
+  # - Best practices/recommendations
+
+# -----------------------------------------------------------------------------
+# 8. CONTEXT MODIFIERS (New - Optional)
+# -----------------------------------------------------------------------------
+# Additional context that modifies behavior based on specific scenarios.
+
+context_modifiers:
+  # Industry-specific terminology or regulations
+  industry_context:
+    sector: "technology"  # healthcare, finance, legal, etc.
+    regulations: ["GDPR", "SOC2"]
+    terminology_notes: "Use standard industry terminology"
+
+  # Regional adaptations
+  regional_context:
+    primary_region: "EU"
+    regional_notes: "Follow EU data protection standards"
+
+  # Tool-specific integrations
+  tool_context:
+    primary_tools: ["Excel", "Power BI", "SQL Server"]
+    tool_preferences: "Prefer Microsoft stack solutions when applicable"
+
+# =============================================================================
+# TEMPLATE FOR NEW ROLES
+# =============================================================================
+# Copy this template when creating a new role:
+
+_template:
+  # Required fields
+  name: "role_identifier"
+  display_name: "Human Readable Name"
+  category: "Category"
+  description: "Brief description of role responsibilities"
+
+  topics:
+    - "Topic 1"
+    - "Topic 2"
+    # ... (min 8 topics)
+
+  seeds:
+    - "Write a..."
+    - "Create a..."
+    # ... (min 10 seeds)
+
+  # Recommended fields
+  persona:
+    tone: "professional"
+    expertise_level: "senior"
+    language: "en"
+
+  system_prompt: |
+    You are an experienced {display_name}...
+
+  response_guidelines:
+    include_code_examples: true
+    format: "markdown"
+    length: "moderate"
+
+  constraints:
+    forbidden:
+      - "..."
+    cautions:
+      - "..."
+
+  examples:
+    - instruction: "..."
+      response: "..."
+
+# =============================================================================
+# VALIDATION RULES
+# =============================================================================
+# These rules are enforced when loading roles:
+
+validation:
+  required_fields:
+    - "name"
+    - "display_name"
+    - "category"
+    - "description"
+    - "topics"
+    - "seeds"
+
+  minimum_counts:
+    topics: 5
+    seeds: 5
+    examples: 0  # Recommended but not required
+
+  field_constraints:
+    description_max_length: 500
+    topic_max_length: 100
+    seed_min_length: 20
+    seed_max_length: 500
