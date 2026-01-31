@@ -537,6 +537,141 @@ DOMAIN_TEMPLATES = {
             "Schreibe einen cat Befehl mit nl für fortlaufende Nummerierung über Dateien",
         ]
     },
+
+    "Files": {
+        "description": "Datei-Formate, Metadaten, Encoding, Konvertierung, Analyse",
+        "topics": [
+            "File Formats", "MIME Types", "Metadata", "Encoding",
+            "File Headers", "Magic Bytes", "Checksums", "Compression",
+            "Archive Formats", "File Parsing", "Binary Analysis", "Text Encoding",
+            "File Validation", "Format Conversion", "File Structure"
+        ],
+        "seeds": [
+            "Schreibe ein Python-Skript das MIME-Type und Magic Bytes einer Datei analysiert",
+            "Erstelle ein Bash-Skript das Datei-Metadaten mit exiftool extrahiert und als JSON ausgibt",
+            "Schreibe ein Python-Skript das verschiedene Text-Encodings erkennt und konvertiert",
+            "Erstelle ein Python-Skript das ZIP-Archive entpackt und die Struktur dokumentiert",
+            "Schreibe ein Bash-Skript das Checksummen für Dateien berechnet und verifiziert",
+            "Erstelle ein Python-Skript das PDF-Metadaten und Text-Inhalt extrahiert",
+            "Schreibe ein Python-Skript das Office-Dokumente parst und Inhalte als Markdown exportiert",
+            "Erstelle ein Bash-Skript das Datei-Header analysiert und Format-Validierung durchführt",
+            "Schreibe ein Python-Skript das XML und JSON Dateien validiert und transformiert",
+            "Erstelle ein Python-Skript das CSV-Dateien mit verschiedenen Delimitern erkennt und parst",
+            "Schreibe ein Bash-Skript das komprimierte Dateien erkennt und optimal dekomprimiert",
+            "Erstelle ein Python-Skript das Binärdateien hexadezimal analysiert und Patterns findet",
+            "Schreibe ein Python-Skript das Datei-Integrität prüft und Korruption erkennt",
+            "Erstelle ein Bash-Skript das Datei-Duplikate basierend auf Content-Hash findet",
+            "Schreibe ein Python-Skript das embedded Dateien aus Containern extrahiert",
+        ]
+    },
+
+    "Images": {
+        "description": "Bildverarbeitung, Analyse, OCR, Metadaten, Format-Konvertierung",
+        "topics": [
+            "Image Formats", "EXIF Metadata", "OCR", "Image Analysis",
+            "Color Spaces", "Resolution", "Compression", "Thumbnails",
+            "Image Recognition", "Face Detection", "Object Detection", "Image Comparison",
+            "Watermarks", "Steganography", "Image Optimization"
+        ],
+        "seeds": [
+            "Schreibe ein Python-Skript das OCR mit Tesseract durchführt und Text aus Bildern extrahiert",
+            "Erstelle ein Python-Skript das EXIF-Metadaten analysiert und GPS-Koordinaten extrahiert",
+            "Schreibe ein Bash-Skript das Bilder mit ImageMagick batch-konvertiert und optimiert",
+            "Erstelle ein Python-Skript das Bildinhalte mit OpenCV analysiert und Objekte erkennt",
+            "Schreibe ein Python-Skript das Screenshots analysiert und UI-Elemente identifiziert",
+            "Erstelle ein Python-Skript das Bilder auf Duplikate mit Perceptual Hashing vergleicht",
+            "Schreibe ein Bash-Skript das Thumbnails in verschiedenen Größen generiert",
+            "Erstelle ein Python-Skript das Farbpaletten aus Bildern extrahiert und analysiert",
+            "Schreibe ein Python-Skript das Diagramme und Charts in Bildern erkennt und Daten extrahiert",
+            "Erstelle ein Python-Skript das Bildqualität bewertet und Kompressionsartefakte erkennt",
+            "Schreibe ein Python-Skript das Gesichter in Bildern erkennt und anonymisiert",
+            "Erstelle ein Bash-Skript das Bildformate validiert und korrupte Dateien identifiziert",
+            "Schreibe ein Python-Skript das Text-Overlays und Wasserzeichen in Bildern analysiert",
+            "Erstelle ein Python-Skript das Bild-zu-Text Beschreibungen mit Vision API generiert",
+            "Schreibe ein Python-Skript das QR-Codes und Barcodes in Bildern dekodiert",
+        ]
+    },
+
+    "Audio": {
+        "description": "Audio-Verarbeitung, Transkription, Analyse, Format-Konvertierung",
+        "topics": [
+            "Audio Formats", "Transcription", "Speech Recognition", "Audio Metadata",
+            "Waveform Analysis", "Spectrograms", "Noise Reduction", "Audio Compression",
+            "Voice Detection", "Music Analysis", "Audio Segmentation", "Pitch Detection",
+            "Sample Rate", "Bit Depth", "Audio Normalization"
+        ],
+        "seeds": [
+            "Schreibe ein Python-Skript das Audio-Transkription mit Whisper durchführt",
+            "Erstelle ein Python-Skript das Audio-Metadaten mit mutagen extrahiert und bearbeitet",
+            "Schreibe ein Bash-Skript das Audio-Dateien mit ffmpeg batch-konvertiert",
+            "Erstelle ein Python-Skript das Sprachaktivität in Audio-Dateien erkennt und segmentiert",
+            "Schreibe ein Python-Skript das Spektrogramme generiert und Audio visuell analysiert",
+            "Erstelle ein Python-Skript das Lautstärke normalisiert und Audio-Qualität verbessert",
+            "Schreibe ein Python-Skript das Sprecher-Diarisierung durchführt und Sprecher trennt",
+            "Erstelle ein Bash-Skript das Audio-Streams aus Video-Dateien extrahiert",
+            "Schreibe ein Python-Skript das Musik-Tempo und Beats analysiert",
+            "Erstelle ein Python-Skript das Audio-Dateien auf Stille prüft und splittet",
+            "Schreibe ein Python-Skript das Hintergrundgeräusche erkennt und klassifiziert",
+            "Erstelle ein Python-Skript das Untertitel aus Audio generiert mit Timestamps",
+            "Schreibe ein Bash-Skript das Audio-Qualität analysiert und Bitrate empfiehlt",
+            "Erstelle ein Python-Skript das Audio-Fingerprinting für Duplikat-Erkennung durchführt",
+            "Schreibe ein Python-Skript das Emotionen und Sentiment in Sprache analysiert",
+        ]
+    },
+
+    "Video": {
+        "description": "Video-Verarbeitung, Analyse, Transkription, Frame-Extraktion",
+        "topics": [
+            "Video Formats", "Codecs", "Frame Extraction", "Video Metadata",
+            "Transcoding", "Scene Detection", "Object Tracking", "Video OCR",
+            "Subtitle Extraction", "Video Thumbnails", "Motion Detection", "Video Quality",
+            "Streaming Formats", "Video Segmentation", "Content Analysis"
+        ],
+        "seeds": [
+            "Schreibe ein Python-Skript das Keyframes aus Videos extrahiert und analysiert",
+            "Erstelle ein Bash-Skript das Videos mit ffmpeg transcodiert und komprimiert",
+            "Schreibe ein Python-Skript das Szenen-Wechsel erkennt und Video segmentiert",
+            "Erstelle ein Python-Skript das Untertitel aus Videos extrahiert oder generiert",
+            "Schreibe ein Python-Skript das Video-Metadaten ausliest und Codec-Info anzeigt",
+            "Erstelle ein Python-Skript das Thumbnails zu bestimmten Zeitpunkten generiert",
+            "Schreibe ein Bash-Skript das Videos in Streaming-Formate wie HLS konvertiert",
+            "Erstelle ein Python-Skript das Bewegung in Videos erkennt und Timestamps markiert",
+            "Schreibe ein Python-Skript das Text und Overlays in Video-Frames per OCR extrahiert",
+            "Erstelle ein Python-Skript das Video-Qualität analysiert und Encoding empfiehlt",
+            "Schreibe ein Python-Skript das Audio-Spur transkribiert und mit Video synchronisiert",
+            "Erstelle ein Bash-Skript das Video-Clips zusammenfügt und Übergänge einfügt",
+            "Schreibe ein Python-Skript das Gesichter in Videos trackt und Timecodes ausgibt",
+            "Erstelle ein Python-Skript das Video-Inhalt beschreibt mit Vision-Language Models",
+            "Schreibe ein Python-Skript das Video-Duplikate basierend auf Visual Hashing erkennt",
+        ]
+    },
+
+    "UV": {
+        "description": "Modernes Python Package Management mit uv, Containerisierung, Dependency Resolution",
+        "topics": [
+            "uv", "pip", "pyproject.toml", "Dependency Management", "Virtual Environments",
+            "Lock Files", "Container Python", "Multi-Stage Builds", "Package Publishing",
+            "Development Dependencies", "Reproducible Builds", "Cache Optimization",
+            "Python Version Management", "Workspace Management", "Tool Installation"
+        ],
+        "seeds": [
+            "Schreibe ein Dockerfile das uv für schnelle Python Dependency Installation nutzt",
+            "Erstelle eine pyproject.toml mit uv für ein modernes Python Projekt",
+            "Schreibe ein Multi-Stage Dockerfile das uv sync für minimale Container-Größe nutzt",
+            "Erstelle ein Bash-Skript das uv für Development Environment Setup verwendet",
+            "Schreibe ein Dockerfile das uv Cache optimal für Docker Layer Caching nutzt",
+            "Erstelle eine GitHub Actions Pipeline die uv für schnelle CI/CD Builds verwendet",
+            "Schreibe ein uv Kommando das Production Dependencies ohne Dev-Dependencies installiert",
+            "Erstelle ein Dockerfile das Python Version mit uv python pinnt und installiert",
+            "Schreibe ein Bash-Skript das uv lock für reproducible Dependency Resolution nutzt",
+            "Erstelle ein Dockerfile das uv tool install für CLI Tools in Container verwendet",
+            "Schreibe ein pyproject.toml mit optional Dependencies und Dependency Groups",
+            "Erstelle ein Multi-Stage Dockerfile das Build-Dependencies von Runtime trennt mit uv",
+            "Schreibe ein Bash-Skript das uv workspace für Monorepo Python Projekte konfiguriert",
+            "Erstelle ein Dockerfile das --system Flag für Container ohne venv nutzt",
+            "Schreibe ein CI Script das uv cache zwischen Builds persistent speichert",
+        ]
+    },
 }
 
 
