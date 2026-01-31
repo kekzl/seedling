@@ -1,7 +1,14 @@
 """
-Domain Templates for Seedling
+Domain Templates for Seedling.
+
 Pre-defined domains with seed instructions for various technical areas.
+Each domain contains a description, list of topics, and seed instructions
+that can be used to generate synthetic training data.
 """
+
+from __future__ import annotations
+
+from typing import Any
 
 DOMAIN_TEMPLATES = {
     "DevOps": {

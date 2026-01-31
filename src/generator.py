@@ -1,48 +1,84 @@
 """
-Instruction Generator using Distilabel and Local LLMs
+Instruction Generator using Distilabel and Local LLMs.
+
+This module provides classes for generating synthetic instruction-response pairs
+using various methods like Self-Instruct, Evol-Instruct, and Magpie.
 """
 
-import os
-import json
-import asyncio
-from typing import Callable, Optional
-from dataclasses import dataclass
+from __future__ import annotations
 
-from distilabel.llms import OllamaLLM
+import os
+from typing import TYPE_CHECKING, Callable
+from dataclasses import dataclass, field
+
+from distilabel.models import OllamaLLM
 from distilabel.pipeline import Pipeline
-from distilabel.steps import LoadDataFromDicts, StepInput, StepOutput, Step
+from distilabel.steps import LoadDataFromDicts
 from distilabel.steps.tasks import TextGeneration, SelfInstruct
+
+if TYPE_CHECKING:
+    from collections.abc import Awaitable
 
 
 @dataclass
 class GenerationConfig:
-    """Configuration for instruction generation."""
+    """Configuration for instruction generation.
+
+    Attributes:
+        model: The model name to use (e.g., "qwen2.5-coder:14b")
+        temperature: Sampling temperature (0.0-1.5)
+        max_tokens: Maximum tokens to generate per response
+        ollama_base_url: Base URL for the Ollama API
+        timeout: Request timeout in seconds
+    """
     model: str = "qwen2.5-coder:14b"
     temperature: float = 0.7
     max_tokens: int = 1024
-    ollama_base_url: str = "http://localhost:11434"
+    ollama_base_url: str = field(
+        default_factory=lambda: os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+    )
+    timeout: float = 120.0
 
 
 class InstructionGenerator:
+    """Generate instruction-response pairs using local LLMs.
+
+    Supports multiple generation methods:
+    - Self-Instruct: Generate diverse instructions from seed examples
+    - Evol-Instruct: Evolve instructions to be more complex
+    - Magpie: Use model-specific templates for natural instructions
+
+    Attributes:
+        config: Generation configuration settings
     """
-    Generates instruction-response pairs using local LLMs.
-    Supports Self-Instruct, Evol-Instruct, and Magpie methods.
-    """
-    
-    def __init__(self, config: Optional[GenerationConfig] = None):
-        self.config = config or GenerationConfig(
-            ollama_base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-        )
+
+    def __init__(self, config: GenerationConfig | None = None) -> None:
+        """Initialize the generator with optional configuration.
+
+        Args:
+            config: Optional configuration. Uses defaults if not provided.
+        """
+        self.config = config or GenerationConfig()
     
     def _create_llm(self, model: str, temperature: float, max_tokens: int) -> OllamaLLM:
-        """Create an Ollama LLM instance."""
+        """Create an Ollama LLM instance.
+
+        Args:
+            model: The model name to use
+            temperature: Sampling temperature
+            max_tokens: Maximum tokens to generate
+
+        Returns:
+            Configured OllamaLLM instance
+        """
         return OllamaLLM(
             model=model,
-            base_url=self.config.ollama_base_url,
+            host=self.config.ollama_base_url,
+            timeout=int(self.config.timeout),
             generation_kwargs={
                 "temperature": temperature,
                 "num_predict": max_tokens,
-            }
+            },
         )
     
     async def generate(

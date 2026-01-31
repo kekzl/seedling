@@ -1,31 +1,46 @@
 """
-Dataset Exporter for various formats
+Dataset Exporter for various formats.
+
 Supports JSONL, Hugging Face Datasets, Alpaca, and ShareGPT formats.
 """
 
+from __future__ import annotations
+
 import json
 import os
-from pathlib import Path
 from datetime import datetime
-from typing import Optional
+from pathlib import Path
+from typing import Any
 
 from datasets import Dataset
 
 
 class DatasetExporter:
-    """Export generated data to various formats."""
-    
-    def __init__(self, output_dir: str = "/app/outputs"):
+    """Export generated data to various formats.
+
+    Supported formats:
+    - JSONL: One JSON object per line
+    - Hugging Face Dataset: Native HF format with optional Hub upload
+    - Alpaca: Stanford Alpaca training format
+    - ShareGPT: Conversation format for chat models
+    """
+
+    def __init__(self, output_dir: str = "/app/outputs") -> None:
+        """Initialize the exporter.
+
+        Args:
+            output_dir: Directory to save exported files
+        """
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
-    
+
     def export(
         self,
-        data: list[dict],
+        data: list[dict[str, Any]],
         format_type: str,
         name: str,
-        hf_repo: Optional[str] = None,
-        private: bool = False
+        hf_repo: str | None = None,
+        private: bool = False,
     ) -> str:
         """
         Export data to the specified format.
@@ -52,7 +67,7 @@ class DatasetExporter:
         else:
             raise ValueError(f"Unknown format: {format_type}")
     
-    def _export_jsonl(self, data: list[dict], name: str) -> str:
+    def _export_jsonl(self, data: list[dict[str, Any]], name: str) -> str:
         """Export as JSONL (one JSON object per line)."""
         
         filepath = self.output_dir / f"{name}.jsonl"
@@ -74,10 +89,10 @@ class DatasetExporter:
     
     def _export_hf_dataset(
         self,
-        data: list[dict],
+        data: list[dict[str, Any]],
         name: str,
-        hf_repo: Optional[str] = None,
-        private: bool = False
+        hf_repo: str | None = None,
+        private: bool = False,
     ) -> str:
         """Export as Hugging Face Dataset and optionally upload."""
         
@@ -119,7 +134,7 @@ class DatasetExporter:
         
         return str(local_path)
     
-    def _export_alpaca(self, data: list[dict], name: str) -> str:
+    def _export_alpaca(self, data: list[dict[str, Any]], name: str) -> str:
         """
         Export in Alpaca format.
         Format: {"instruction": ..., "input": ..., "output": ...}
@@ -141,7 +156,7 @@ class DatasetExporter:
         
         return str(filepath)
     
-    def _export_sharegpt(self, data: list[dict], name: str) -> str:
+    def _export_sharegpt(self, data: list[dict[str, Any]], name: str) -> str:
         """
         Export in ShareGPT/OpenAI format.
         Format: {"conversations": [{"from": "human", "value": ...}, {"from": "gpt", "value": ...}]}
@@ -180,51 +195,109 @@ class DatasetExporter:
 
 
 class ArgillaExporter:
-    """Export data to Argilla for curation."""
-    
+    """Export data to Argilla for curation.
+
+    Supports both legacy Argilla 1.x API and modern Argilla 2.x SDK.
+    """
+
     def __init__(
         self,
         api_url: str = "http://localhost:6900",
-        api_key: str = "argilla.apikey"
-    ):
+        api_key: str = "argilla.apikey",
+    ) -> None:
+        """Initialize the Argilla exporter.
+
+        Args:
+            api_url: URL of the Argilla server
+            api_key: API key for authentication
+        """
         self.api_url = api_url
         self.api_key = api_key
-    
+
     def push_to_argilla(
         self,
-        data: list[dict],
+        data: list[dict[str, Any]],
         dataset_name: str,
-        workspace: str = "admin"
+        workspace: str = "admin",
     ) -> str:
-        """Push data to Argilla for review and curation."""
-        
+        """Push data to Argilla for review and curation.
+
+        Args:
+            data: List of instruction-response pairs
+            dataset_name: Name for the Argilla dataset
+            workspace: Argilla workspace name
+
+        Returns:
+            URL to the created dataset
+        """
         import argilla as rg
-        
-        # Initialize client
-        rg.init(
+
+        # Initialize client (Argilla 2.x style)
+        client = rg.Argilla(
             api_url=self.api_url,
-            api_key=self.api_key
+            api_key=self.api_key,
         )
-        
+
+        # Define the dataset settings for text generation review
+        settings = rg.Settings(
+            fields=[
+                rg.TextField(name="instruction", title="Instruction"),
+                rg.TextField(name="response", title="Response"),
+            ],
+            questions=[
+                rg.RatingQuestion(
+                    name="quality",
+                    title="Quality Rating",
+                    description="Rate the quality of the instruction-response pair",
+                    values=[1, 2, 3, 4, 5],
+                ),
+                rg.TextQuestion(
+                    name="feedback",
+                    title="Feedback",
+                    description="Optional feedback or corrections",
+                    required=False,
+                ),
+                rg.LabelQuestion(
+                    name="status",
+                    title="Status",
+                    labels=["approved", "rejected", "needs_revision"],
+                ),
+            ],
+            metadata=[
+                rg.TermsMetadataProperty(name="method", title="Generation Method"),
+                rg.TermsMetadataProperty(name="model", title="Model"),
+            ],
+        )
+
+        # Create or get dataset
+        try:
+            dataset = rg.Dataset(
+                name=dataset_name,
+                workspace=workspace,
+                settings=settings,
+                client=client,
+            )
+            dataset.create()
+        except Exception:
+            # Dataset might already exist
+            dataset = client.datasets(name=dataset_name, workspace=workspace)
+
         # Create records
-        records = []
-        for item in data:
-            record = rg.TextClassificationRecord(
-                text=f"**Instruction:**\n{item.get('instruction', '')}\n\n**Response:**\n{item.get('response', '')}",
-                metadata={
+        records = [
+            rg.Record(
+                fields={
                     "instruction": item.get("instruction", ""),
                     "response": item.get("response", ""),
+                },
+                metadata={
                     "method": item.get("method", "unknown"),
                     "model": item.get("model", "unknown"),
-                }
+                },
             )
-            records.append(record)
-        
-        # Log to Argilla
-        rg.log(
-            records=records,
-            name=dataset_name,
-            workspace=workspace
-        )
-        
-        return f"{self.api_url}/datasets/{workspace}/{dataset_name}"
+            for item in data
+        ]
+
+        # Log records to dataset
+        dataset.records.log(records)
+
+        return f"{self.api_url}/dataset/{dataset.id}/annotation-mode"
