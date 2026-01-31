@@ -29,6 +29,16 @@ from .roles import (
 )
 from .generator import GenerationConfig, InstructionGenerator, SimpleGenerator
 from .exporter import DatasetExporter, ArgillaExporter
+from .hardware import (
+    GPUInfo,
+    SystemInfo,
+    detect_system,
+    get_system_info,
+    get_hardware_summary,
+    load_model_requirements,
+    get_recommended_models,
+    get_best_default_model,
+)
 
 __all__ = [
     "__version__",
@@ -58,4 +68,13 @@ __all__ = [
     # Exporter
     "DatasetExporter",
     "ArgillaExporter",
+    # Hardware Detection
+    "GPUInfo",
+    "SystemInfo",
+    "detect_system",
+    "get_system_info",
+    "get_hardware_summary",
+    "load_model_requirements",
+    "get_recommended_models",
+    "get_best_default_model",
 ]

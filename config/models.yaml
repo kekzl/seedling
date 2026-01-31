@@ -9,7 +9,15 @@ default:
   max_tokens: 1024
   timeout: 120
 
+# Hardware-specific notes:
+# - Native Linux: Full VRAM available
+# - WSL2: Windows reserves ~3GB for display/compositor
+# - Native Windows: ~2GB overhead for DWM
+# Example: RTX 5090 (32GB) under WSL2 = ~29GB effective
+
 # Available models
+# vram_required: Minimum VRAM in MB for the model to run
+# vram_recommended: Recommended VRAM in MB for optimal performance
 models:
   # Qwen 2.5 Coder - Best for code generation
   qwen2.5-coder:14b:
@@ -20,47 +28,54 @@ models:
       - "Code generation"
       - "Technical documentation"
       - "Multi-language support"
-    vram_required: "~28GB"
-    
+    vram_required: 26624    # ~26GB minimum
+    vram_recommended: 28672 # ~28GB recommended
+
   qwen2.5-coder:7b:
     description: "Qwen 2.5 Coder 7B - Good balance of speed and quality"
     context_length: 32768
     languages: ["en", "de", "zh"]
-    vram_required: "~14GB"
+    vram_required: 12288    # ~12GB minimum
+    vram_recommended: 14336 # ~14GB recommended
 
   # Qwen 2.5 General
   qwen2.5:7b:
     description: "Qwen 2.5 7B - General purpose, good instruction following"
     context_length: 32768
     languages: ["en", "de", "zh"]
-    vram_required: "~14GB"
-    
+    vram_required: 12288    # ~12GB minimum
+    vram_recommended: 14336 # ~14GB recommended
+
   qwen2.5:14b:
     description: "Qwen 2.5 14B - Higher quality general purpose"
     context_length: 32768
     languages: ["en", "de", "zh"]
-    vram_required: "~28GB"
+    vram_required: 26624    # ~26GB minimum
+    vram_recommended: 28672 # ~28GB recommended
 
   # Llama 3.1
   llama3.1:8b:
     description: "Meta Llama 3.1 8B - Strong English performance"
     context_length: 128000
     languages: ["en"]
-    vram_required: "~16GB"
+    vram_required: 14336    # ~14GB minimum
+    vram_recommended: 16384 # ~16GB recommended
 
   # CodeLlama
   codellama:13b:
     description: "CodeLlama 13B - Specialized for code"
     context_length: 16384
     languages: ["en"]
-    vram_required: "~26GB"
+    vram_required: 24576    # ~24GB minimum
+    vram_recommended: 26624 # ~26GB recommended
 
   # DeepSeek Coder
   deepseek-coder:6.7b:
     description: "DeepSeek Coder 6.7B - Efficient code model"
     context_length: 16384
     languages: ["en", "zh"]
-    vram_required: "~14GB"
+    vram_required: 12288    # ~12GB minimum
+    vram_recommended: 14336 # ~14GB recommended
 
 # Generation presets
 presets:

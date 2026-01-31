@@ -25,6 +25,13 @@ from .roles import (
 )
 from .generator import InstructionGenerator, GenerationConfig
 from .exporter import DatasetExporter, ArgillaExporter
+from .hardware import (
+    get_system_info,
+    get_hardware_summary,
+    load_model_requirements,
+    get_recommended_models,
+    get_best_default_model,
+)
 
 
 def load_models_from_config() -> list[str]:
@@ -52,6 +59,101 @@ def load_models_from_config() -> list[str]:
     ]
 
 
+def get_models_with_recommendations() -> tuple[list[str], str, str]:
+    """Get models sorted by recommendation based on detected hardware.
+
+    Returns:
+        Tuple of (sorted_models, default_model, status_message)
+    """
+    all_models = load_models_from_config()
+    system_info = get_system_info()
+    model_requirements = load_model_requirements()
+
+    # Get recommendations
+    recommended, possible, incompatible = get_recommended_models(
+        system_info, model_requirements
+    )
+
+    # Build sorted list: recommended first, then possible, then incompatible
+    sorted_models = []
+
+    # Add recommended models with indicator
+    for model in recommended:
+        sorted_models.append(f"{model}")
+
+    # Add possible models
+    for model in possible:
+        if model not in sorted_models:
+            sorted_models.append(f"{model}")
+
+    # Add incompatible models (user might still want to try)
+    for model in incompatible:
+        if model not in sorted_models:
+            sorted_models.append(f"{model}")
+
+    # Add any models not in requirements (from config but not evaluated)
+    for model in all_models:
+        if model not in sorted_models:
+            sorted_models.append(model)
+
+    # Determine default model
+    default_model = get_best_default_model(system_info, model_requirements)
+    if not default_model and sorted_models:
+        default_model = sorted_models[0]
+
+    # Build status message
+    effective_vram = system_info.effective_vram_gb
+    if system_info.has_gpu:
+        gpu_name = system_info.gpus[0].name.replace("NVIDIA ", "").replace("GeForce ", "")
+        if system_info.is_wsl:
+            status = f"{gpu_name} | {effective_vram}GB effective (WSL2)"
+        elif system_info.os_type == "Windows":
+            status = f"{gpu_name} | {effective_vram}GB effective (Windows)"
+        else:
+            status = f"{gpu_name} | {effective_vram}GB effective"
+
+        if recommended:
+            status += f" | {len(recommended)} recommended models"
+        elif possible:
+            status += f" | {len(possible)} possible models (tight fit)"
+        else:
+            status += " | No compatible models (consider smaller models)"
+    else:
+        status = "CPU only | No GPU detected"
+
+    return sorted_models, default_model or all_models[0], status
+
+
+def get_model_compatibility_info(model_name: str) -> str:
+    """Get compatibility info for a specific model.
+
+    Args:
+        model_name: The model name to check
+
+    Returns:
+        Compatibility status string
+    """
+    system_info = get_system_info()
+    model_requirements = load_model_requirements()
+
+    if model_name not in model_requirements:
+        return "Unknown VRAM requirements"
+
+    req = model_requirements[model_name]
+    available_vram = system_info.available_vram_mb
+
+    vram_required_gb = round(req.vram_required_mb / 1024, 1)
+    vram_recommended_gb = round(req.vram_recommended_mb / 1024, 1)
+    available_gb = round(available_vram / 1024, 1)
+
+    if req.vram_recommended_mb <= available_vram:
+        return f"Recommended ({vram_required_gb}-{vram_recommended_gb}GB required, {available_gb}GB available)"
+    elif req.vram_required_mb <= available_vram:
+        return f"Possible but tight ({vram_required_gb}GB required, {available_gb}GB available)"
+    else:
+        return f"May not fit ({vram_required_gb}GB required, only {available_gb}GB available)"
+
+
 def create_app() -> gr.Blocks:
     """Create the Gradio application.
 
@@ -65,8 +167,9 @@ def create_app() -> gr.Blocks:
         api_key=os.getenv("ARGILLA_API_KEY", "argilla.apikey"),
     )
 
-    # Load models from config
-    available_models = load_models_from_config()
+    # Load models with hardware-based recommendations
+    available_models, default_model, hardware_status = get_models_with_recommendations()
+    system_info = get_system_info()
 
     # State for generated data (using gr.State for multi-user safety)
     generated_data: list[dict[str, Any]] = []
@@ -82,9 +185,45 @@ def create_app() -> gr.Blocks:
         gr.Markdown("""
         # 🌱 Seedling
         ### Synthetic Instruction Dataset Generator
-        
+
         Erstelle hochwertige Instruction-Response-Paare für SFT mit lokalen LLMs.
         """)
+
+        # Hardware detection info display
+        with gr.Accordion("System Info", open=False):
+            with gr.Row():
+                with gr.Column(scale=2):
+                    hardware_info_display = gr.Textbox(
+                        value=system_info.get_display_string(),
+                        label="Detected Hardware",
+                        lines=8,
+                        interactive=False,
+                    )
+                with gr.Column(scale=1):
+                    gr.Markdown(f"""
+**Status:** {hardware_status}
+
+**Auto-selected Model:** `{default_model}`
+
+*Models are sorted by compatibility with your hardware.
+WSL2 and Windows reserve some VRAM for the display system.*
+                    """)
+                    refresh_hw_btn = gr.Button("Refresh Hardware Info")
+
+            def refresh_hardware() -> tuple[str, str]:
+                """Refresh hardware detection."""
+                new_info = get_system_info(refresh=True)
+                _, new_default, new_status = get_models_with_recommendations()
+                return (
+                    new_info.get_display_string(),
+                    f"**Status:** {new_status}\n\n**Auto-selected Model:** `{new_default}`"
+                )
+
+            # Note: Gradio doesn't easily support updating Markdown, so we use a simpler approach
+            refresh_hw_btn.click(
+                lambda: get_system_info(refresh=True).get_display_string(),
+                outputs=[hardware_info_display]
+            )
         
         # Get role manager for predefined roles
         role_manager = get_role_manager()
@@ -225,8 +364,9 @@ def create_app() -> gr.Blocks:
                             with gr.Column(scale=1):
                                 custom_role_model = gr.Dropdown(
                                     choices=available_models,
-                                    value=available_models[0] if available_models else "qwen2.5-coder:14b",
-                                    label="Model for Generation"
+                                    value=default_model,
+                                    label="Model for Generation",
+                                    info="Auto-selected based on your hardware"
                                 )
 
                         generate_role_btn = gr.Button("Generate Role Template", variant="primary")
@@ -412,8 +552,26 @@ def create_app() -> gr.Blocks:
                         
                         model_dropdown = gr.Dropdown(
                             choices=available_models,
-                            value=available_models[0] if available_models else "qwen2.5-coder:14b",
-                            label="Model"
+                            value=default_model,
+                            label="Model",
+                            info="Auto-selected based on your hardware"
+                        )
+
+                        model_compatibility = gr.Textbox(
+                            value=get_model_compatibility_info(default_model),
+                            label="Compatibility",
+                            interactive=False,
+                            lines=1
+                        )
+
+                        def update_compatibility(model: str) -> str:
+                            """Update compatibility info when model changes."""
+                            return get_model_compatibility_info(model)
+
+                        model_dropdown.change(
+                            update_compatibility,
+                            inputs=[model_dropdown],
+                            outputs=[model_compatibility]
                         )
                         
                         temperature = gr.Slider(
