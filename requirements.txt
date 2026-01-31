@@ -2,7 +2,7 @@
 # =======================
 
 # Web UI
-gradio>=4.44.0,<5.0.0
+gradio>=5.0.0,<7.0.0
 
 # Data Generation Pipeline
 distilabel>=1.4.0,<2.0.0

@@ -885,9 +885,10 @@ WSL2 and Windows reserve some VRAM for the display system.*
 
 
 if __name__ == "__main__":
+    import os
     app = create_app()
     app.launch(
-        server_name="0.0.0.0",
-        server_port=7860,
-        share=False,
+        server_name=os.getenv("GRADIO_SERVER_NAME", "0.0.0.0"),
+        server_port=int(os.getenv("GRADIO_SERVER_PORT", "7860")),
+        share=os.getenv("GRADIO_SHARE", "false").lower() == "true",
     )

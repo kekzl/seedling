@@ -25,12 +25,14 @@ class DatasetExporter:
     - ShareGPT: Conversation format for chat models
     """
 
-    def __init__(self, output_dir: str = "/app/outputs") -> None:
+    def __init__(self, output_dir: str | None = None) -> None:
         """Initialize the exporter.
 
         Args:
             output_dir: Directory to save exported files
         """
+        if output_dir is None:
+            output_dir = os.getenv("OUTPUT_DIR", "./outputs")
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
