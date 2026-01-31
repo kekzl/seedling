@@ -9,6 +9,9 @@ from src.domains import (
     get_domain_seeds,
     get_all_topics,
     get_domain_description,
+    get_all_templates,
+    get_template_seeds,
+    get_template_choices,
 )
 
 
@@ -125,3 +128,71 @@ class TestGetDomainDescription:
         for domain in DOMAIN_TEMPLATES:
             description = get_domain_description(domain)
             assert len(description) > 0, f"Domain '{domain}' has empty description"
+
+
+class TestGetAllTemplates:
+    """Tests for get_all_templates function."""
+
+    def test_includes_domains(self) -> None:
+        """Should include all domain templates."""
+        templates = get_all_templates()
+
+        for domain in DOMAIN_TEMPLATES:
+            assert domain in templates
+
+    def test_includes_roles(self) -> None:
+        """Should include role templates."""
+        templates = get_all_templates()
+
+        # Should have more templates than just domains
+        assert len(templates) >= len(DOMAIN_TEMPLATES)
+
+    def test_all_templates_have_required_keys(self) -> None:
+        """All templates should have description, topics, and seeds."""
+        templates = get_all_templates()
+
+        for name, template in templates.items():
+            assert "description" in template, f"Template '{name}' missing description"
+            assert "topics" in template, f"Template '{name}' missing topics"
+            assert "seeds" in template, f"Template '{name}' missing seeds"
+
+
+class TestGetTemplateSeeds:
+    """Tests for get_template_seeds function."""
+
+    def test_returns_domain_seeds(self) -> None:
+        """Should return seeds for domain names."""
+        seeds = get_template_seeds("DevOps")
+
+        assert isinstance(seeds, list)
+        assert len(seeds) > 0
+
+    def test_returns_empty_for_invalid(self) -> None:
+        """Should return empty list for unknown name."""
+        seeds = get_template_seeds("NonExistent")
+
+        assert seeds == []
+
+
+class TestGetTemplateChoices:
+    """Tests for get_template_choices function."""
+
+    def test_returns_dict(self) -> None:
+        """Should return dictionary of choices."""
+        choices = get_template_choices()
+
+        assert isinstance(choices, dict)
+
+    def test_includes_technical_domains(self) -> None:
+        """Should include Technical Domains category."""
+        choices = get_template_choices()
+
+        assert "Technical Domains" in choices
+        assert len(choices["Technical Domains"]) > 0
+
+    def test_includes_role_categories(self) -> None:
+        """Should include role categories."""
+        choices = get_template_choices()
+
+        # Should have more than just technical domains
+        assert len(choices) > 1
