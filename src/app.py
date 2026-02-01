@@ -6,6 +6,7 @@ Main Gradio Application - Simplified Quick Start UI
 from __future__ import annotations
 
 import asyncio
+import json
 import os
 import subprocess
 import time
@@ -33,6 +34,83 @@ from .roles import (
     get_predefined_roles,
     get_role_manager,
 )
+
+# Output directory for auto-saved generations
+OUTPUT_DIR = Path(os.getenv("OUTPUT_DIR", "./outputs"))
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def get_saved_generations() -> list[tuple[str, str]]:
+    """Get list of saved generation files.
+
+    Returns:
+        List of (display_name, filepath) tuples, sorted by date descending.
+    """
+    files = []
+    for ext in ["*.jsonl", "*_alpaca.json", "*_sharegpt.json"]:
+        files.extend(OUTPUT_DIR.glob(ext))
+
+    # Sort by modification time, newest first
+    files.sort(key=lambda f: f.stat().st_mtime, reverse=True)
+
+    result = []
+    for f in files[:50]:  # Limit to 50 most recent
+        # Format: "filename (size, date)"
+        size_kb = f.stat().st_size / 1024
+        mtime = datetime.fromtimestamp(f.stat().st_mtime)
+        date_str = mtime.strftime("%Y-%m-%d %H:%M")
+
+        size_str = f"{size_kb:.1f} KB" if size_kb < 1024 else f"{size_kb / 1024:.1f} MB"
+
+        # Count lines for JSONL files
+        if f.suffix == ".jsonl":
+            try:
+                with open(f) as fp:
+                    line_count = sum(1 for _ in fp)
+                display = f"{f.name} ({line_count} pairs, {size_str}, {date_str})"
+            except Exception:
+                display = f"{f.name} ({size_str}, {date_str})"
+        else:
+            display = f"{f.name} ({size_str}, {date_str})"
+
+        result.append((display, str(f)))
+
+    return result
+
+
+def auto_save_generation(data: list[dict], topic: str) -> str:
+    """Auto-save generation results to outputs folder.
+
+    Args:
+        data: List of instruction-response pairs
+        topic: Topic name for the filename
+
+    Returns:
+        Path to saved file
+    """
+    # Clean topic name for filename
+    clean_topic = "".join(c if c.isalnum() or c in "-_" else "_" for c in topic)
+    clean_topic = clean_topic[:30]  # Limit length
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"{clean_topic}_{timestamp}.jsonl"
+    filepath = OUTPUT_DIR / filename
+
+    with open(filepath, "w", encoding="utf-8") as f:
+        for item in data:
+            clean_item = {
+                "instruction": item.get("instruction", ""),
+                "response": item.get("response", ""),
+            }
+            if "input" in item:
+                clean_item["input"] = item["input"]
+            if "method" in item:
+                clean_item["method"] = item["method"]
+            if "model" in item:
+                clean_item["model"] = item["model"]
+            f.write(json.dumps(clean_item, ensure_ascii=False) + "\n")
+
+    return str(filepath)
 
 
 def load_models_from_config() -> list[str]:
@@ -553,6 +631,19 @@ def create_app() -> gr.Blocks:
 
                 quick_download_file = gr.File(label="Download", visible=False)
 
+            # History section - browse previous generations
+            with gr.Accordion("📁 Previous Generations", open=False):
+                history_dropdown = gr.Dropdown(
+                    choices=[],
+                    label="Select a saved generation",
+                    info="Download previously generated datasets",
+                    interactive=True,
+                )
+                with gr.Row():
+                    refresh_history_btn = gr.Button("🔄 Refresh", size="sm")
+                    download_history_btn = gr.Button("⬇️ Download", size="sm", variant="primary")
+                history_download_file = gr.File(label="Download", visible=False)
+
         # =====================================================================
         # ADVANCED MODE
         # =====================================================================
@@ -1069,19 +1160,24 @@ Check the Docker logs for more details:
                     seeds,
                 )
             else:
+                # Auto-save to outputs folder
+                saved_path = auto_save_generation(results, topic_display)
+                saved_filename = Path(saved_path).name
+
                 summary = f"""
 **Generation complete!**
 
 - Generated: **{len(results)}** instruction-response pairs
 - Time: {time_str}
-- Ready to download
+- Auto-saved: `{saved_filename}`
+- Ready to download in other formats
                 """
 
                 yield (
                     gr.update(visible=False),
                     gr.update(visible=True),
                     summary,
-                    None,
+                    saved_path,  # Provide auto-saved file for immediate download
                     seeds,
                 )
 
@@ -1137,6 +1233,35 @@ Check the Docker logs for more details:
         download_jsonl_btn.click(export_quick_jsonl, outputs=[quick_download_file])
         download_alpaca_btn.click(export_quick_alpaca, outputs=[quick_download_file])
         download_sharegpt_btn.click(export_quick_sharegpt, outputs=[quick_download_file])
+
+        # -----------------------------------------------------------------
+        # History Handlers
+        # -----------------------------------------------------------------
+
+        def refresh_history() -> gr.update:
+            """Refresh the list of saved generations."""
+            choices = get_saved_generations()
+            return gr.update(choices=[c[0] for c in choices], value=None)
+
+        def download_from_history(selection: str | None) -> str | None:
+            """Download a previously saved generation."""
+            if not selection:
+                return None
+            # Find the filepath for the selected item
+            for display, filepath in get_saved_generations():
+                if display == selection:
+                    return filepath
+            return None
+
+        # Initialize history on load
+        app.load(refresh_history, outputs=[history_dropdown])
+
+        refresh_history_btn.click(refresh_history, outputs=[history_dropdown])
+        download_history_btn.click(
+            download_from_history,
+            inputs=[history_dropdown],
+            outputs=[history_download_file],
+        )
 
         # -----------------------------------------------------------------
         # Advanced Mode Handlers
